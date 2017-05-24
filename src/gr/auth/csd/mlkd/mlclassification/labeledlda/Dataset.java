@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package gr.auth.csd.mlkd.lda;
+package gr.auth.csd.mlkd.mlclassification.labeledlda;
 
 import java.io.Serializable;
 import java.util.ArrayList;

@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package gr.auth.csd.mlkd.atypon.mlclassification.labeledlda.subspace;
+package gr.auth.csd.mlkd.mlclassification.labeledlda.subspace;
 
 import gnu.trove.map.hash.TObjectDoubleHashMap;
 import java.util.concurrent.Callable;

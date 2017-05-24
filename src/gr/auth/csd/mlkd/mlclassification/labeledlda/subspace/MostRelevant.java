@@ -3,13 +3,13 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package gr.auth.csd.mlkd.atypon.mlclassification.labeledlda.subspace;
+package gr.auth.csd.mlkd.mlclassification.labeledlda.subspace;
 
 import gnu.trove.map.hash.TIntDoubleHashMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import gnu.trove.map.hash.TObjectDoubleHashMap;
-import gr.auth.csd.mlkd.atypon.utils.Timer;
-import gr.auth.csd.mlkd.atypon.utils.Utils;
+import gr.auth.csd.mlkd.utils.Timer;
+import gr.auth.csd.mlkd.utils.Utils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -63,7 +63,7 @@ public abstract class MostRelevant {
                 labels.add(f.get());
             }
         } catch (InterruptedException | ExecutionException ex) {
-            Logger.getLogger(MostRelevantTfIdf.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(MostRelevant.class.getName()).log(Level.SEVERE, null, ex);
         }
         //cleanRareLabels(labels, 1);
         writeFile(labels);

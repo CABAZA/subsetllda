@@ -1,4 +1,4 @@
-package gr.auth.csd.mlkd.lda;
+package gr.auth.csd.mlkd.mlclassification.labeledlda;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.TIntDoubleHashMap;
 import java.io.Serializable;

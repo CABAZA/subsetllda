@@ -1,9 +1,9 @@
-package gr.auth.csd.mlkd.lda;
+package gr.auth.csd.mlkd.mlclassification.labeledlda;
 
 import gnu.trove.iterator.TIntIterator;
 import gnu.trove.map.hash.TIntDoubleHashMap;
 import gnu.trove.set.hash.TIntHashSet;
-import gr.auth.csd.mlkd.atypon.utils.Utils;
+import gr.auth.csd.mlkd.utils.Utils;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;

@@ -1,21 +1,22 @@
-package gr.auth.csd.mlkd.atypon.mlclassification.labeledlda.models;
+package gr.auth.csd.mlkd.mlclassification.labeledlda.models;
 
 import gnu.trove.list.array.TIntArrayList;
-import gr.auth.csd.mlkd.atypon.lda.Dataset;
-import gr.auth.csd.mlkd.atypon.utils.Utils;
+import gr.auth.csd.mlkd.mlclassification.labeledlda.Dataset;
+import gr.auth.csd.mlkd.utils.Utils;
+
 
 
 /**
  *
  * @author Yannis Papanikolaou
  */
-public class OnlyCGS_pPriorModelTfIdf extends PriorModelTfIdf {
+public class InferenceCGSpModel extends PriorModel {
 
-    public OnlyCGS_pPriorModelTfIdf() {
+    public InferenceCGSpModel() {
         super();
     }
     
-    public OnlyCGS_pPriorModelTfIdf(Dataset data, String trainedModelName, int threads, int iters, int burnin) {
+    public InferenceCGSpModel(Dataset data, String trainedModelName, int threads, int iters, int burnin) {
         super(data, trainedModelName, threads, iters, burnin);
     }
        

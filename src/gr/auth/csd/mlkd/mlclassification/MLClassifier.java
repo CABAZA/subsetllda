@@ -20,7 +20,7 @@ import gnu.trove.iterator.TObjectDoubleIterator;
 import gnu.trove.map.hash.TIntDoubleHashMap;
 import gnu.trove.map.hash.TObjectDoubleHashMap;
 import gnu.trove.set.hash.TIntHashSet;
-import gr.auth.csd.mlkd.atypon.utils.Utils;
+import gr.auth.csd.mlkd.utils.Utils;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.PrintWriter;
@@ -44,15 +44,13 @@ public abstract class MLClassifier {
     public String testFile;
     protected String trainingFile;
     protected int offset = 0;
-    protected int numFeatures;
     protected String predictionsFilename = "predictions";
 
     public MLClassifier(String trainingFile, String testFile, 
-            int nfeatures, int nLabels, int threads) {
+            int nLabels, int threads) {
         this.trainingFile = trainingFile;
         this.testFile = testFile;
         numLabels = nLabels;
-        numFeatures = nfeatures;
         this.threads = threads;
     }
 

@@ -17,7 +17,7 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
-import gr.auth.csd.mlkd.lda.Dataset;
+import gr.auth.csd.mlkd.mlclassification.labeledlda.Dataset;
 import gr.auth.csd.mlkd.utils.Pair;
 import gr.auth.csd.mlkd.utils.Utils;
 

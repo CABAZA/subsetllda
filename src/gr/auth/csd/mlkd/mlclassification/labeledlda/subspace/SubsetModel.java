@@ -1,43 +1,75 @@
-package gr.auth.csd.mlkd.atypon.mlclassification.labeledlda.subspace;
+package gr.auth.csd.mlkd.mlclassification.labeledlda.subspace;
 
 import gnu.trove.iterator.TIntIterator;
+import gnu.trove.map.hash.TIntDoubleHashMap;
+import gnu.trove.map.hash.TIntIntHashMap;
 import gnu.trove.map.hash.TObjectDoubleHashMap;
-import gr.auth.csd.mlkd.atypon.utils.Utils;
 import java.io.Serializable;
 import java.util.Random;
-import gr.auth.csd.mlkd.atypon.lda.Dataset;
-import gr.auth.csd.mlkd.atypon.mlclassification.labeledlda.models.OnlyCGS_pPriorModel;
+import gr.auth.csd.mlkd.mlclassification.labeledlda.Dataset;
+import gr.auth.csd.mlkd.mlclassification.labeledlda.models.InferenceCGSpModel;
+import static gr.auth.csd.mlkd.mlclassification.labeledlda.models.Model.readPhi;
+import gr.auth.csd.mlkd.utils.Utils;
 import java.util.ArrayList;
 
-public class SubsetModel extends OnlyCGS_pPriorModel implements Serializable {
+//todo: priors, frequency*similarity, shuffle word order, shuffle doc order, cgs vs cgs_p
+public class SubsetModel extends InferenceCGSpModel implements Serializable {
 
     static final long serialVersionUID = -7219137807901737L;
     private final double[][] alphaPrior;
     private final int[][] possibleLabels;
 
     public SubsetModel(Dataset data, String trainedModelName, int threads, int iters, int burnin, String ls) {
-        super(data, trainedModelName, threads, iters, burnin);
+        super();
+
+        this.data = data;
+        K = data.getK();
+        //+ allocate memory and assign values for variables		
+        M = data.getDocs().size();
+        V = data.getV();
+        System.out.println("K " + K);
+        System.out.println("V " + V);
+        System.out.println("M " + M);
+
+        String trainedPhi = trainedModelName + ".phi";
+        System.out.println(trainedPhi);
+        phi = readPhi(trainedPhi);
+        theta = new double[M][];
+        z = new TIntIntHashMap[M];
+        nd = new TIntDoubleHashMap[M];
+        for (int m = 0; m < M; m++) {
+            nd[m] = new TIntDoubleHashMap();
+            z[m] = new TIntIntHashMap();
+        }
+
+        this.niters = iters;
+        this.nburnin = burnin;
+        this.threads = threads;
+        this.modelName = trainedModelName;
+
         ArrayList<TObjectDoubleHashMap<String>> a = (ArrayList<TObjectDoubleHashMap<String>>) Utils.readObject(ls);
         this.possibleLabels = new int[M][];
-        alphaPrior = new double[M][K];
+        alphaPrior = new double[M][];
         for (int d = 0; d < M; d++) {
-
             int[] keySet = data.getDocs().get(d).getLabels();
             int size = keySet.length;
             possibleLabels[d] = new int[size];
-
+            alphaPrior[d] = new double[size];
+            theta[d] =  new double[size];
             int k = 0;
             for (int index : keySet) {
                 possibleLabels[d][k] = index;
                 String label = data.getLabel(index);
                 double freq = a.get(d).get(label);
-                alphaPrior[d][index - 1] = 50.0*freq + 30.0 / K;
+                alphaPrior[d][k] = 50.0 * freq + 30.0 / K;
                 k++;
             }
-            //System.out.println(d + " " + possibleLabels[d].length + " " + 
-            //        Utils.max(alphaPrior[d])+" "+Arrays.toString(alphaPrior[d]));
-
         }
+    }
+
+    @Override
+    public void initAlpha() {
+
     }
 
     @Override
@@ -55,38 +87,34 @@ public class SubsetModel extends OnlyCGS_pPriorModel implements Serializable {
     }
 
     @Override
-    public void update(int d) {
-        int documentLength = data.getDocs().get(d).getWords().size();
-        //data.getDocs().get(d).getWords().shuffle(new Random());
-        for (int w = 0; w < documentLength; w++) {
-            int word = data.getDocs().get(d).getWords().get(w);
-
-            int topic = z[d].get(w);
-            removeZi(d, w, topic);
-
-            int[] labels = possibleLabels[d];
+    public void update(int m) {
+        TIntIterator it = data.getDocs().get(m).getWords().iterator();
+        while (it.hasNext()) {
+            int w = it.next();
+            int topic = z[m].get(w);
+            removeZi(m, w, topic);
+            int[] labels = possibleLabels[m];
             int K_m = labels.length;
-
-            double probs[] = new double[K_m];
+            double[] p = new double[K_m];
             for (int k = 0; k < K_m; k++) {
                 topic = labels[k] - 1;
-                double prob = phi[topic].get(word) * (nd[d].get(topic) + alphaPrior[d][topic]);
-                //double prob = phi[topic].get(word) * (nd[d][topic] + alpha[topic]);
-                probs[k] = (k == 0) ? prob : probs[k - 1] + prob;
+                double prob = phi[topic].get(w) * (nd[m].get(topic) + alphaPrior[m][k]);
+                p[k] = (k == 0) ? prob : p[k - 1] + prob;
             }
 
             double u = Math.random();
             for (topic = 0; topic < K_m; topic++) {
-                if (probs[topic] > u * probs[K_m - 1]) {
+                if (p[topic] > u * p[K_m - 1]) {
                     break;
                 }
             }
+
             if (topic == K_m) {
                 topic = K_m - 1;
             }
             topic = labels[topic] - 1;
-            z[d].put(w, topic);
-            addZi(d, w, topic);
+            addZi(m, w, topic);
+            z[m].put(w, topic);
         }
     }
 
@@ -98,33 +126,25 @@ public class SubsetModel extends OnlyCGS_pPriorModel implements Serializable {
             int K_m = labels.length;
             double[] p = new double[K_m];
             TIntIterator it = data.getDocs().get(d).getWords().iterator();
-            while(it.hasNext()) {
+            while (it.hasNext()) {
                 int word = it.next();
-//                int t = z[d].get(word);
-//                nd[d].adjustValue(t, -1);
                 for (int k = 0; k < K_m; k++) {
                     int topic = labels[k] - 1;
-                    p[k] = (nd[d].get(topic) + alphaPrior[d][topic]) * phi[topic].get(word);
+                    p[k] = (nd[d].get(topic) + alphaPrior[d][k]) * phi[topic].get(word);
                 }
-                //nd[d].adjustValue(t, 1);
                 p = Utils.normalize(p, 1);
 
                 //sum probabilities over the document
                 for (int k = 0; k < K_m; k++) {
                     int topic = labels[k] - 1;
-                    theta[d][topic] += p[k];
+                    theta[d][k] += p[k];
                 }
             }
         }
-
-        //System.out.println(Arrays.toString(theta[0]));
         if (numSamples == totalSamples) {
             for (int m = 0; m < M; m++) {
                 theta[m] = Utils.normalize(theta[m], 1.0);
             }
         }
-
-        //System.out.println(Arrays.toString(theta[0]));
-        //return theta;
     }
 }

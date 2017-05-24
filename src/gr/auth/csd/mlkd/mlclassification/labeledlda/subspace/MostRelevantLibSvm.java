@@ -1,4 +1,4 @@
-package gr.auth.csd.mlkd.atypon.mlclassification.labeledlda.subspace;
+package gr.auth.csd.mlkd.mlclassification.labeledlda.subspace;
 
 import gnu.trove.iterator.TIntIterator;
 import gnu.trove.list.array.TIntArrayList;
@@ -6,7 +6,8 @@ import gnu.trove.map.hash.TIntDoubleHashMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import gnu.trove.map.hash.TObjectDoubleHashMap;
 import gnu.trove.set.hash.TIntHashSet;
-import gr.auth.csd.mlkd.atypon.CmdOption;
+import gr.auth.csd.mlkd.utils.CmdOption;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -32,14 +33,14 @@ import java.util.HashSet;
  * Retrieves the n-most relevaqnt documents and creates a subspace of the labels
  * set to be used for LLDA inference
  */
-public class MostRelevantTfIdfLibSvm extends MostRelevant {
+public class MostRelevantLibSvm extends MostRelevant {
 
-    public MostRelevantTfIdfLibSvm(int n, CmdOption option) {
+    public MostRelevantLibSvm(int n, CmdOption option) {
         super(n, option.testFile, option.trainingFile);
 
     }
 
-    public MostRelevantTfIdfLibSvm(int n, String testFile, String trainFile) {
+    public MostRelevantLibSvm(int n, String testFile, String trainFile) {
         super(n, testFile, trainFile);
     }
 
@@ -90,7 +91,7 @@ public class MostRelevantTfIdfLibSvm extends MostRelevant {
                 doc++;
             }
         } catch (IOException ex) {
-            Logger.getLogger(MostRelevantTfIdfLibSvm.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(MostRelevantLibSvm.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         try (ObjectOutputStream output = new ObjectOutputStream(new FileOutputStream("alpha"+this.testFile))) {
@@ -118,7 +119,7 @@ public class MostRelevantTfIdfLibSvm extends MostRelevant {
                 d++;
             }
         } catch (IOException ex) {
-            Logger.getLogger(MostRelevantTfIdfLibSvm.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(MostRelevantLibSvm.class.getName()).log(Level.SEVERE, null, ex);
         }
         return tfl;
     }
@@ -142,7 +143,7 @@ public class MostRelevantTfIdfLibSvm extends MostRelevant {
                 vector.add(doc);
             }
         } catch (IOException ex) {
-            Logger.getLogger(MostRelevantTfIdfLibSvm.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(MostRelevantLibSvm.class.getName()).log(Level.SEVERE, null, ex);
         }
         return vector;
     }
@@ -174,9 +175,9 @@ public class MostRelevantTfIdfLibSvm extends MostRelevant {
             }
             System.out.println(new Date() + " Macro-recall:" + MaRecall / i + " min = " + min + " max = " + max + " avg = " + avg / i);
         } catch (FileNotFoundException ex) {
-            Logger.getLogger(MostRelevantTfIdfLibSvm.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(MostRelevantLibSvm.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
-            Logger.getLogger(MostRelevantTfIdfLibSvm.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(MostRelevantLibSvm.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 

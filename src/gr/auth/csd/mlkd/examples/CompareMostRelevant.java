@@ -5,7 +5,8 @@
  */
 package gr.auth.csd.mlkd.examples;
 
-import gr.auth.csd.mlkd.atypon.mlclassification.labeledlda.subspace.MostRelevantTfIdf;
+import gr.auth.csd.mlkd.mlclassification.labeledlda.subspace.MostRelevant;
+import gr.auth.csd.mlkd.mlclassification.labeledlda.subspace.MostRelevantLibSvm;
 import gr.auth.csd.mlkd.utils.CmdOption;
 
 
@@ -18,10 +19,10 @@ public class CompareMostRelevant {
 
         CmdOption option = new CmdOption(args);
 
-        MostRelevantTfIdf mr = new MostRelevantTfIdf(10, 
-                option.testFile, option.trainingFile, option.dictionary, option.labels);
+        MostRelevant mr = new MostRelevantLibSvm(10, 
+                option.testFile, option.trainingFile);
         mr.mostRelevant();
-        MostRelevantTfIdf.evaluate(option.testFile, option.testFile+".wlabels");
+        MostRelevantLibSvm.evaluate(option.testFile, option.testFile+".wlabels");
 //        
 //        if(new File("theta.model").exists()) mr = new MostRelevantLDA(10, option, "theta.model");
 //        else mr = new MostRelevantLDA(10, option);

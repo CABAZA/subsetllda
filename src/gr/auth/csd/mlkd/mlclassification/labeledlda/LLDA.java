@@ -5,10 +5,11 @@ import gnu.trove.iterator.TObjectDoubleIterator;
 import gnu.trove.map.hash.TIntDoubleHashMap;
 import gnu.trove.map.hash.TObjectDoubleHashMap;
 import gnu.trove.set.hash.TIntHashSet;
-import gr.auth.csd.mlkd.lda.Dataset;
-import gr.auth.csd.mlkd.lda.DatasetTfIdf;
 import gr.auth.csd.mlkd.mlclassification.MLClassifier;
+import gr.auth.csd.mlkd.mlclassification.labeledlda.models.EstimationCGSpModel;
+import gr.auth.csd.mlkd.mlclassification.labeledlda.models.InferenceCGSpModel;
 import gr.auth.csd.mlkd.mlclassification.labeledlda.models.Model;
+import gr.auth.csd.mlkd.mlclassification.labeledlda.models.ModelTfIdf;
 import gr.auth.csd.mlkd.utils.LLDACmdOption;
 import gr.auth.csd.mlkd.utils.Utils;
 
@@ -21,7 +22,7 @@ import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class LLDATfIdf extends  MLClassifier{
+public class LLDA extends  MLClassifier{
 
     private int K;
     Dataset data;
@@ -35,9 +36,10 @@ public class LLDATfIdf extends  MLClassifier{
     final String trainedModelName;
     protected final boolean parallel;
     protected int chains = 1;
+    int numFeatures;
 
-    public LLDATfIdf(LLDACmdOption option) {
-        super(option.trainingFile, option.testFile, option.nFeatures, option.K, option.threads);
+    public LLDA(LLDACmdOption option) {
+        super(option.trainingFile, option.testFile, option.K, option.threads);
         this.method = option.method;
         this.parallel = option.parallel;
         this.beta = option.beta;
@@ -52,7 +54,7 @@ public class LLDATfIdf extends  MLClassifier{
     @Override
     public void train() {
         data = new DatasetTfIdf(this.trainingFile, false, false, 0, null, K);
-        data.create(null);
+        data.create();
         this.numFeatures = data.getV();
         this.M = data.getDocs().size();
         Model trnModel = null;
@@ -70,7 +72,7 @@ public class LLDATfIdf extends  MLClassifier{
             for (int i = 0; i < chains; i++) {
                 if ("cgs_p".equals(method)) {
                     System.out.println("CGS_p estimation");
-                    trnModel = new CGS_pModelTfIdf(data, i, beta, trainedModelName, threads, iters, burnin);
+                    trnModel = new EstimationCGSpModel(data, i, beta, trainedModelName, threads, iters, burnin);
                 } else {
                     System.out.println("standard CGS estimation");
                     trnModel = new ModelTfIdf(data, i, beta, false, trainedModelName, threads, iters, burnin);
@@ -120,7 +122,7 @@ public class LLDATfIdf extends  MLClassifier{
         Model newModel = null;
         System.out.println("Serial Inference");
         for (int i = 0; i < chains; i++) {
-            newModel = new OnlyCGS_pPriorModelTfIdf(data, trainedModelName, threads, iters, burnin);
+            newModel = new InferenceCGSpModel(data, trainedModelName, threads, iters, burnin);
             newModel.inference();
             for (int m = 0; m < newModel.M; m++) {
                 //sum up probabilities from the different markov chains

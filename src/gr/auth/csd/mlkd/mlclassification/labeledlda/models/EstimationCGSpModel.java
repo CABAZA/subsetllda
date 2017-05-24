@@ -14,22 +14,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package gr.auth.csd.mlkd.atypon.mlclassification.labeledlda.models;
+package gr.auth.csd.mlkd.mlclassification.labeledlda.models;
 
 import gnu.trove.iterator.TIntDoubleIterator;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.TIntDoubleHashMap;
-import gr.auth.csd.mlkd.atypon.lda.Dataset;
-import gr.auth.csd.mlkd.atypon.utils.Utils;
+import gr.auth.csd.mlkd.mlclassification.labeledlda.Dataset;
+import gr.auth.csd.mlkd.utils.Utils;
 
 /**
  *
  * @author Yannis Papanikolaou <ypapanik@csd.auth.gr>
  */
-public class CGS_pModelTfIdf extends ModelTfIdf {
+public class EstimationCGSpModel extends ModelTfIdf {
 
 
-    public CGS_pModelTfIdf(Dataset data, int thread, double beta, String trainedModelName, int threads, int iters, int burnin) {
+    public EstimationCGSpModel(Dataset data, int thread, double beta, String trainedModelName, int threads, int iters, int burnin) {
         super(data, thread, beta, false, trainedModelName, threads, iters, burnin);
     }
 

@@ -1,6 +1,6 @@
 package gr.auth.csd.mlkd.mlclassification.labeledlda.models;
 
-import gr.auth.csd.mlkd.lda.Dataset;
+import gr.auth.csd.mlkd.mlclassification.labeledlda.Dataset;
 
 
 public class ModelTfIdf extends Model {
