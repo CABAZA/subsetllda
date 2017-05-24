@@ -1,4 +1,4 @@
-package gr.auth.csd.mlkd.atypon.utils;
+package gr.auth.csd.mlkd.utils;
 
 public class Pair implements Comparable<Pair> {
 

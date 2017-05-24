@@ -1,12 +1,11 @@
-package gr.auth.csd.mlkd.atypon.mlclassification.labeledlda.models;
+package gr.auth.csd.mlkd.mlclassification.labeledlda.models;
 
 import gnu.trove.iterator.TIntDoubleIterator;
 import gnu.trove.iterator.TIntIterator;
-import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.map.hash.TIntDoubleHashMap;
 import gnu.trove.map.hash.TIntIntHashMap;
-import gr.auth.csd.mlkd.atypon.utils.Pair;
-import gr.auth.csd.mlkd.atypon.utils.Utils;
+import gr.auth.csd.mlkd.mlclassification.labeledlda.CallableInferencer;
+
 
 import java.io.BufferedWriter;
 import java.io.FileInputStream;
@@ -18,12 +17,15 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
-import gr.auth.csd.mlkd.atypon.mlclassification.labeledlda.CallableInferencer;
-import gr.auth.csd.mlkd.atypon.lda.Dataset;
+import gr.auth.csd.mlkd.lda.Dataset;
+import gr.auth.csd.mlkd.utils.Pair;
+import gr.auth.csd.mlkd.utils.Utils;
 
 import java.util.Date;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Model implements Runnable {
 
@@ -440,19 +442,20 @@ public class Model implements Runnable {
 
     protected void exec() {
 
-        ArrayList<CallableInferencer> calculators = new ArrayList<>();
-        ExecutorService pool = Executors.newFixedThreadPool(threads);
-        for (int i = 0; i < threads; i++) {
-            calculators.add(new CallableInferencer(this, 0, (this.getM() - 1), threads, i));
-        }
         try {
+            ArrayList<CallableInferencer> calculators = new ArrayList<>();
+            ExecutorService pool = Executors.newFixedThreadPool(threads);
+            for (int i = 0; i < threads; i++) {
+                calculators.add(new CallableInferencer(this, 0, (this.getM() - 1), threads, i));
+            }
             pool.invokeAll(calculators);
-        } catch (InterruptedException ex) {
-        }
-        pool.shutdown();
-
+            pool.shutdown();
+            
 //        ForkJoinPool fjPool = new ForkJoinPool(threads);
 //        fjPool.invoke(new ForkInferencer(newModel, 0, (newModel.M-1)));       
+        } catch (InterruptedException ex) {
+            Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @Override

@@ -3,10 +3,8 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package gr.auth.csd.mlkd.atypon.lda;
+package gr.auth.csd.mlkd.lda;
 
-import gr.auth.csd.mlkd.atypon.preprocessing.Corpus;
-import gr.auth.csd.mlkd.atypon.preprocessing.Labels;
 import java.io.Serializable;
 import java.util.ArrayList;
 
@@ -31,7 +29,7 @@ public abstract class Dataset implements Serializable {
 
 
 
-    public abstract void create(Corpus corpus);
+    public abstract void create();
 
     public int getV() {
         return V;

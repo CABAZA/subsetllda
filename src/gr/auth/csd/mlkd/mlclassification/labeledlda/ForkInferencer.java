@@ -1,5 +1,5 @@
-package gr.auth.csd.mlkd.atypon.mlclassification.labeledlda;
-import gr.auth.csd.mlkd.atypon.mlclassification.labeledlda.models.Model;
+package gr.auth.csd.mlkd.mlclassification.labeledlda;
+import gr.auth.csd.mlkd.mlclassification.labeledlda.models.Model;
 import static java.util.Arrays.asList;
 import java.util.concurrent.RecursiveAction;
 

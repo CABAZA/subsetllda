@@ -1,6 +1,6 @@
-package gr.auth.csd.mlkd.atypon.mlclassification.labeledlda;
+package gr.auth.csd.mlkd.mlclassification.labeledlda;
 
-import gr.auth.csd.mlkd.atypon.mlclassification.labeledlda.models.Model;
+import gr.auth.csd.mlkd.mlclassification.labeledlda.models.Model;
 import java.util.concurrent.Callable;
 
 

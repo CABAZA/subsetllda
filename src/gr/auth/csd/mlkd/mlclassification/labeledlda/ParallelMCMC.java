@@ -1,7 +1,6 @@
-package gr.auth.csd.mlkd.atypon.mlclassification.labeledlda;
+package gr.auth.csd.mlkd.mlclassification.labeledlda;
 
 import gnu.trove.map.hash.TIntDoubleHashMap;
-import gr.auth.csd.mlkd.atypon.lda.Dataset;
 
 /**
  *

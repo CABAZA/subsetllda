@@ -36,14 +36,8 @@ public class LDACmdOption extends CmdOption implements Serializable {
 
     @Option(name="-twords", usage="Specify the number of most likely words to be printed for each topic")
         public int twords = 20;
-    @Option(name="-benchmark", usage="BenchMarking (Yao et al.)")
-        public boolean benchmark = false;    
     @Option(name="-perplexity", usage="Calculate and print perplexity")
         public boolean perplexity=false;
-    @Option(name="-serial", usage="Estimate an array of different models. Used for the DepLLDA algorithm")
-        public boolean serial = false;
-    @Option(name="-mix", usage="CGS2CVB0 mix")
-        public boolean mix;
     @Option(name="-chains", usage="Specify the Markov chains")
         public int chains = 1;
 

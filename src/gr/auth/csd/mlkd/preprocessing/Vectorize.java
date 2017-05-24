@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package gr.auth.csd.mlkd.atypon.preprocessing;
+package gr.auth.csd.mlkd.preprocessing;
 
 /**
  *

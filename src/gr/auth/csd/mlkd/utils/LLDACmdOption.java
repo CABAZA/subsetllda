@@ -7,20 +7,11 @@ import org.kohsuke.args4j.*;
 
 public class LLDACmdOption extends LDACmdOption implements Serializable {
   
-    @Option(name = "-gamma", usage = "gamma for Dependency LDA")
-    public double gamma = 0.01;
     
-    @Option(name = "-jM", usage = "journalsModel")
-    public String jm = null;
-    
-    @Option(name = "-allMesh", usage = "allMesh")
-    public String allMesh = null;
+
     
     @Option(name = "-parallel", usage = "Estimate/Infer parameters in parallel")
     public boolean parallel = false;
-
-    @Option(name = "-theta", usage = "predictions")
-    public String theta = "theta";
     @Option(name = "-possibleLabels", usage = "possibleLabels")
     public String possibleLabels="alpha";
 

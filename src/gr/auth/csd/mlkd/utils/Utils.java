@@ -1,4 +1,4 @@
-package gr.auth.csd.mlkd.atypon.utils;
+package gr.auth.csd.mlkd.utils;
 
 import gnu.trove.iterator.TIntDoubleIterator;
 import gnu.trove.iterator.TIntIterator;

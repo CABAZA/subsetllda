@@ -1,10 +1,8 @@
-package gr.auth.csd.mlkd.atypon.lda;
+package gr.auth.csd.mlkd.lda;
 
 import gnu.trove.iterator.TIntIterator;
 import gnu.trove.map.hash.TIntDoubleHashMap;
 import gnu.trove.set.hash.TIntHashSet;
-import gr.auth.csd.mlkd.atypon.lda.models.Model;
-import gr.auth.csd.mlkd.atypon.preprocessing.Corpus;
 import gr.auth.csd.mlkd.atypon.utils.Utils;
 import java.io.BufferedReader;
 import java.io.File;
@@ -71,7 +69,7 @@ public class DatasetTfIdf extends Dataset {
     }
 
     @Override
-    public void create(Corpus corpus) {
+    public void create() {
         docs = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(new File(svmFile)))) {
             String line;

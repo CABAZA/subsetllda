@@ -14,21 +14,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package gr.auth.csd.mlkd.atypon.mlclassification;
+package gr.auth.csd.mlkd.mlclassification;
 
 import gnu.trove.iterator.TObjectDoubleIterator;
 import gnu.trove.map.hash.TIntDoubleHashMap;
 import gnu.trove.map.hash.TObjectDoubleHashMap;
-import gnu.trove.set.hash.THashSet;
 import gnu.trove.set.hash.TIntHashSet;
-import gr.auth.csd.mlkd.atypon.mlclassification.svm.MetaModel;
-import gr.auth.csd.mlkd.atypon.preprocessing.Corpus;
-import gr.auth.csd.mlkd.atypon.preprocessing.CorpusJSON;
-import gr.auth.csd.mlkd.atypon.preprocessing.Dictionary;
-import gr.auth.csd.mlkd.atypon.preprocessing.Document;
-import gr.auth.csd.mlkd.atypon.preprocessing.Labels;
 import gr.auth.csd.mlkd.atypon.utils.Utils;
-
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.PrintWriter;
@@ -36,9 +28,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -51,221 +41,25 @@ public abstract class MLClassifier {
     protected int threads;
     protected double[][] predictions;
     protected int numLabels = 0;
-    protected Dictionary dictionary = null;
-    protected Labels globalLabels = null;
-    protected Corpus corpus2;
-    protected Corpus corpus;
-    protected String[] docMap = null;
-    public String bipartitionsFile = "bipartitions";
     public String testFile;
-    protected TreeMap<String, THashSet<String>> bipartitions = new TreeMap<>();
     protected String trainingFile;
     protected int offset = 0;
-    protected String testFilelibSVM = "testFile.libSVM";
     protected int numFeatures;
     protected String predictionsFilename = "predictions";
 
-    public MLClassifier(String trainingFile, String testFile, String dic, String labels, int threads) {
-        this((dic == null) ? null : Dictionary.readDictionary(dic), (labels == null) ? null : Labels.readLabels(labels),
-                ((trainingFile != null) ? new CorpusJSON(trainingFile) : null),
-                ((testFile != null) ? new CorpusJSON(testFile) : null), threads);
+    public MLClassifier(String trainingFile, String testFile, 
+            int nfeatures, int nLabels, int threads) {
         this.trainingFile = trainingFile;
         this.testFile = testFile;
-    }
-
-    public MLClassifier(String trainingFile, String testFile, Dictionary dictionary, Labels labels, int threads) {
-        this(dictionary, labels, ((trainingFile != null) ? new CorpusJSON(trainingFile) : null),
-                ((testFile != null) ? new CorpusJSON(testFile) : null), threads);
-        this.trainingFile = trainingFile;
-        this.testFile = testFile;
-    }
-
-    public MLClassifier(Dictionary dictionary, Labels labels, Corpus trainingCorpus,
-            Corpus testCorpus, int threads) {
-        corpus = trainingCorpus;
-        corpus2 = testCorpus;
-        this.dictionary = dictionary;
-        this.globalLabels = labels;
-        if (labels != null) {
-            numLabels = labels.getSize();
-        }
-        if (dictionary != null) {
-            numFeatures = dictionary.getId().size();
-        }
-        if (testCorpus != null) {
-            bipartitionsFile = "bipartitions";
-            createDocMap();
-        }
+        numLabels = nLabels;
+        numFeatures = nfeatures;
         this.threads = threads;
     }
 
-    protected void createDocMap() {
-        Document doc;
-        int id = 0;
-        int size = CorpusJSON.size(corpus2);
-        docMap = new String[size];
-        corpus2.reset();
-        while ((doc = corpus2.nextDocument()) != null) {
-            docMap[id] = doc.getId();
-            id++;
-        }
-    }
-
-    public void bipartitionsWrite(String bipartitionsFile) {
-        try (PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(bipartitionsFile)))) {
-            Iterator<Map.Entry<String, THashSet<String>>> it = bipartitions.entrySet().iterator();
-            while (it.hasNext()) {
-                Map.Entry<String, THashSet<String>> next = it.next();
-                Set<String> pred = new TreeSet<>();
-                pred.addAll(next.getValue());
-                writeToFile(writer, pred, next.getKey());
-            }
-        } catch (Exception ex) {
-            Logger.getLogger(MLClassifier.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
-    public void bipartitionsWrite(String bipartitionsFile, ArrayList<TObjectDoubleHashMap<String>> mostRelevantLabels) {
-        try (PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(bipartitionsFile)))) {
-            for (int i = 0; i < mostRelevantLabels.size(); i++) {
-                String pmid = this.docMap[i];
-//                if(i==0) System.out.println(bipartitions.get(pmid));              
-                bipartitions.get(pmid).retainAll(mostRelevantLabels.get(i).keySet());
-//                if(i==0) System.out.println(bipartitions.get(pmid)); 
-            }
-            Iterator<Map.Entry<String, THashSet<String>>> it = bipartitions.entrySet().iterator();
-            int i = 0;
-            while (it.hasNext()) {
-                Map.Entry<String, THashSet<String>> next = it.next();
-                Set<String> pred = new TreeSet<>();
-                pred.addAll(next.getValue());
-                writeToFile(writer, pred, next.getKey());
-                i++;
-            }
-        } catch (Exception ex) {
-            Logger.getLogger(MLClassifier.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
-    protected void writeToFile(PrintWriter writer, Set<String> pred, String doc) {
-        writer.write(doc + ": ");
-        String[] pred2 = pred.toArray(new String[0]);
-        for (int i = 0; i < pred2.length - 1; i++) {
-            writer.write(pred2[i] + "; ");
-        }
-        if (pred2.length != 0) {
-            writer.write(pred2[pred2.length - 1] + "\n");
-        } else {
-            writer.write("\n");
-        }
-    }
-
-    public TreeMap<String, THashSet<String>> predict(TIntHashSet mc) {
+    public void predict(TIntHashSet mc) {
         predictInternal(mc);
         savePredictions();
-        //create bipartitions
-        createBipartitions();
-        return bipartitions;
 
-    }
-
-    public void predictWithoutBipartitions(TIntHashSet mc) {
-        predictInternal(mc);
-
-    }
-
-    public TreeMap<String, TObjectDoubleHashMap<String>> predictProbs(TIntHashSet mc) {
-        predictInternal(mc);
-        int threshold = 40; //define how many labels to keep in the ranking, this is done for efficiency in storage
-        TreeMap<String, TObjectDoubleHashMap<String>> probMap = new TreeMap<>();
-        for (int doc = 0; doc < predictions.length; doc++) {
-            String pmid = docMap[doc];
-
-            if (!probMap.containsKey(pmid)) {
-                probMap.put(pmid, new TObjectDoubleHashMap<>());
-            }
-            for (int k = 0; k < threshold; k++) {
-                int l = Utils.maxIndex(predictions[doc]);
-                probMap.get(pmid).put(globalLabels.getLabel(l + 1), predictions[doc][l]);
-                predictions[doc][l] = Double.MIN_VALUE;
-            }
-        }
-        writeProbs(probMap, "scores.txt");
-        return probMap;
-    }
-
-    public void createBipartitionsFromRanking(String metalabelerFile) {
-        int corpusSize = predictions.length;
-        double[] metalabelerPredictions = new double[corpusSize];
-        if (metalabelerFile != null) {
-            metalabelerPredictions = MetaModel.getMetaModelPrediction(metalabelerFile,
-                    numFeatures, corpusSize, this.testFilelibSVM, dictionary, this.corpus2);
-        }
-        for (int doc = 0; doc < corpusSize; doc++) {
-            String pmid = docMap[doc];
-            if (!bipartitions.containsKey(pmid)) {
-                bipartitions.put(pmid, new THashSet<>());
-            }
-            //System.out.println(metalabelerPredictions[doc]);
-            int d = offset + (int) Utils.round(metalabelerPredictions[doc]);
-            if (d < 1) {
-                d = 1;
-            }
-            for (int k = 0; k < d; k++) {
-                int label = Utils.maxIndex(predictions[doc]);
-//                if(doc==0) System.out.println(globalLabels.getLabel(label + 1)+":\t"+predictions[doc][label]);
-                predictions[doc][label] = Double.MIN_VALUE;
-                bipartitions.get(pmid).add(globalLabels.getLabel(label + 1));
-            }
-//            if (doc == 0) {
-//                System.out.println(bipartitions.get(pmid));
-//            }
-        }
-    }
-
-    public void createBipartitionsFromProbs(String metalabelerFile, TreeMap<String, TObjectDoubleHashMap<String>> probs) {
-        double[] metalabelerPredictions = new double[probs.size()];
-        if (metalabelerFile != null) {
-            metalabelerPredictions = MetaModel.getMetaModelPrediction(metalabelerFile,
-                    numFeatures, probs.size(), this.testFilelibSVM, dictionary, this.corpus2);
-        }
-        for (int doc = 0; doc < probs.size(); doc++) {
-            String pmid = docMap[doc];
-            if (!bipartitions.containsKey(pmid)) {
-                bipartitions.put(pmid, new THashSet<>());
-            }
-            //System.out.println(metalabelerPredictions[doc]);
-            int d = offset + (int) Utils.round(metalabelerPredictions[doc]);
-            if (d < 1) {
-                d = 1;
-            }
-            //System.out.println(d);
-            for (int k = 0; k < d; k++) {
-                String label = Utils.maxIndex(probs.get(pmid));
-                probs.get(pmid).put(label, Double.MIN_VALUE);
-                bipartitions.get(pmid).add(label);
-            }
-        }
-    }
-
-    public void createBipartitions() {
-        //System.out.println( docMap.length+" "+predictions.length);//predictions[0].length);
-        for (int doc = 0; doc < predictions.length; doc++) {
-            String pmid = docMap[doc];
-            if (!bipartitions.containsKey(pmid)) {
-                bipartitions.put(pmid, new THashSet<>());
-            }
-            for (int label = 0; label < predictions[doc].length; label++) {
-                if (predictions[doc][label] > 0) {
-                    bipartitions.get(pmid).add(globalLabels.getLabel(label + 1));
-                }
-            }
-        }
-        //System.out.println(bipartitions.size());
-    }
-
-    public void setBipartitions(TreeMap<String, THashSet<String>> bipartitions) {
-        this.bipartitions = bipartitions;
     }
 
     public abstract void train();
@@ -313,12 +107,16 @@ public abstract class MLClassifier {
             TIntDoubleHashMap preds = new TIntDoubleHashMap();
             if (100 > predictions[0].length) {
                 for (int k = 0; k < predictions[0].length; k++) {
-                    if(p2[doc][k]!=0) preds.put(k, p2[doc][k]);
+                    if (p2[doc][k] != 0) {
+                        preds.put(k, p2[doc][k]);
+                    }
                 }
             } else {
                 for (int k = 0; k < 100; k++) {
                     int label = Utils.maxIndex(p2[doc]);
-                    if(p2[doc][label]!=0) preds.put(label, p2[doc][label]);
+                    if (p2[doc][label] != 0) {
+                        preds.put(label, p2[doc][label]);
+                    }
                     p2[doc][label] = -1;
                 }
             }

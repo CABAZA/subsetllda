@@ -25,17 +25,10 @@ public class CmdOption implements Serializable {
 
     static final long serialVersionUID = -91327807901735687L;
 
-    @Option(name = "-dictionary", usage = "features dictionary")
-    public String dictionary = "dictionary";
-
-    @Option(name = "-labels", usage = "labels set")
-    public String labels = "labels";
 
     @Option(name = "-trainingFile", usage = "training dataset")
     public String trainingFile = null;
 
-    @Option(name = "-unsuptrainingFile", usage = "doc2vec training dataset")
-    public String doc2vectrainingFile = null;
 
     @Option(name = "-testFile", usage = "testing dataset")
     public String testFile = null;
@@ -55,17 +48,10 @@ public class CmdOption implements Serializable {
     @Option(name = "-offset", usage = "adjust the MetaLabeler's predictions by offset")
     public int offset = -1;
 
-    @Option(name = "-fsMethod", usage = "feature selection method")
-    public int fsMethod = 1;
-
-    @Option(name = "-zoning", usage = "perform zoning of title/labels.")
-    public boolean zoning = true;
 
     @Option(name = "-predictions", usage = "predictions")
     public String predictionsFile = "predictions";
 
-    @Option(name = "-tp", usage = "true positives.")
-    public String tpFile = "tp/tp";
 
     @Option(name = "-trainFilelibSVM", usage = "training dataset libSVM ")
     public String fileTrainLibsvm = "train.Libsvm";
@@ -85,13 +71,9 @@ public class CmdOption implements Serializable {
     @Option(name = "-score", usage = "specify if the predictions will be scores or binary")
     public boolean score = false;
 
-    @Option(name = "-threshold", usage = "specify if for the metalabeler we will employ threshold instead of cardinality predictions")
-    public boolean threshold = false;
     @Option(name = "-C", usage = "C parameter for the SVMs.")
     public double C = 1;
 
-    @Option(name = "-N", usage = "N parameter for thresholding the N most relevant predictions.")
-    public int N = 10;
 
     @Option(name = "-low1Grams", usage = "lower threshold for unigrams")
     public int lowUnigrams = 10;
@@ -108,6 +90,4 @@ public class CmdOption implements Serializable {
     @Option(name = "-mlc", usage = "mlc in use")
     public String mlc = "mlp";
 
-    @Option(name = "-doc2vec", usage = "If 1, use doc2vec representation, if 2 use autoencoders")
-    public int doc2vec = 0;
 }

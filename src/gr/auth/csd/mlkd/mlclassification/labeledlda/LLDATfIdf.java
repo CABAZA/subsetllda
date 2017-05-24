@@ -1,25 +1,17 @@
-package gr.auth.csd.mlkd.atypon.mlclassification.labeledlda;
+package gr.auth.csd.mlkd.mlclassification.labeledlda;
 
 import gnu.trove.iterator.TIntDoubleIterator;
 import gnu.trove.iterator.TObjectDoubleIterator;
 import gnu.trove.map.hash.TIntDoubleHashMap;
 import gnu.trove.map.hash.TObjectDoubleHashMap;
-import gnu.trove.set.hash.THashSet;
 import gnu.trove.set.hash.TIntHashSet;
-import gr.auth.csd.mlkd.atypon.LLDACmdOption;
-import gr.auth.csd.mlkd.atypon.lda.DatasetTfIdf;
-import gr.auth.csd.mlkd.atypon.mlclassification.MLClassifier;
+import gr.auth.csd.mlkd.lda.Dataset;
+import gr.auth.csd.mlkd.lda.DatasetTfIdf;
+import gr.auth.csd.mlkd.mlclassification.MLClassifier;
+import gr.auth.csd.mlkd.mlclassification.labeledlda.models.Model;
+import gr.auth.csd.mlkd.utils.LLDACmdOption;
+import gr.auth.csd.mlkd.utils.Utils;
 
-import gr.auth.csd.mlkd.atypon.mlclassification.labeledlda.models.CGS_pModelTfIdf;
-import gr.auth.csd.mlkd.atypon.mlclassification.labeledlda.models.Model;
-import gr.auth.csd.mlkd.atypon.mlclassification.labeledlda.models.ModelTfIdf;
-import gr.auth.csd.mlkd.atypon.mlclassification.labeledlda.models.OnlyCGS_pPriorModelTfIdf;
-import gr.auth.csd.mlkd.atypon.mlclassification.svm.MetaModel;
-import gr.auth.csd.mlkd.atypon.preprocessing.CorpusJSON;
-import gr.auth.csd.mlkd.atypon.preprocessing.Dictionary;
-import gr.auth.csd.mlkd.atypon.preprocessing.Labels;
-import gr.auth.csd.mlkd.atypon.preprocessing.VectorizeLibSvm;
-import gr.auth.csd.mlkd.atypon.utils.Utils;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.PrintWriter;
@@ -29,19 +21,33 @@ import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class LLDATfIdf extends LLDA {
+public class LLDATfIdf extends  MLClassifier{
 
     private int K;
+    Dataset data;
+    ParallelMCMC pmc;
+    protected int M;
+    protected String method;
+    TIntDoubleHashMap[] phi;
+    final double beta;
+    protected int iters;
+    int burnin = 50;
+    final String trainedModelName;
+    protected final boolean parallel;
+    protected int chains = 1;
 
     public LLDATfIdf(LLDACmdOption option) {
-        super(option);
+        super(option.trainingFile, option.testFile, option.nFeatures, option.K, option.threads);
+        this.method = option.method;
+        this.parallel = option.parallel;
+        this.beta = option.beta;
+        this.burnin = option.nburnin;
+        this.iters = option.niters;
+        this.trainedModelName = option.modelName;
+        this.chains = option.chains;
         K = option.K;
     }
 
-    public LLDATfIdf(String metalabeler, String method, double beta, int iters,
-            boolean parallel, String trainingFile, String test, int c, boolean inf, int t) {
-        super(metalabeler, method, beta, iters, parallel, trainingFile, test, null, null, c, inf, t);
-    }
 
     @Override
     public void train() {
@@ -101,20 +107,6 @@ public class LLDATfIdf extends LLDA {
             phi = m.getPhi();
 
         }
-        initMetalabeler();
-    }
-
-    @Override
-    protected void initMetalabeler() {
-        if (metalabelerFile != null) {
-            System.out.println("Training metalabeler...");
-            VectorizeLibSvm v = new VectorizeLibSvm();
-            v.vectorizeTrain(this.trainingFile, this.trainingFile + "b");
-            MetaModel ml = new MetaModel(numLabels, this.trainingFile + "b", null, numFeatures);
-            ml.train(metaTrainLabels);
-            ml.saveModel(metalabelerFile);
-            metalabeler = ml.getModel();
-        }
     }
 
     @Override
@@ -122,7 +114,7 @@ public class LLDATfIdf extends LLDA {
         TIntDoubleHashMap[] fi = Model.readPhi(trainedModelName + ".phi");
         this.numFeatures = Utils.max(fi);
         data = new DatasetTfIdf(testFile, true, true, numFeatures, fi, 0);
-        data.create(null);
+        data.create();
         M = data.getDocs().size();
         double[][] thetaSum = new double[M][data.getK()];
         Model newModel = null;
@@ -153,36 +145,8 @@ public class LLDATfIdf extends LLDA {
         return predictions;
     }
 
-    @Override
-    protected void createDocMap() {
 
-    }
 
-    @Override
-    public void createBipartitionsFromRanking(String metalabelerFile) {
-        int corpusSize = predictions.length;
-        double[] metalabelerPredictions = new double[corpusSize];
-        VectorizeLibSvm v = new VectorizeLibSvm();
-        v.vectorizeUnlabeled(this.testFile, this.testFilelibSVM);
-        if (metalabelerFile != null) {
-
-            metalabelerPredictions = MetaModel.getMetaModelPrediction(metalabelerFile,
-                    numFeatures, corpusSize, this.testFilelibSVM, dictionary, this.corpus2);
-        }
-        for (int doc = 0; doc < corpusSize; doc++) {
-            bipartitions.put(doc + "", new THashSet<>());
-            //System.out.println(metalabelerPredictions[doc]);
-            int d = 1 + (int) Utils.round(metalabelerPredictions[doc]);
-            if (d < 1) {
-                d = 1;
-            }
-            for (int k = 0; k < d; k++) {
-                int label = Utils.maxIndex(predictions[doc]);
-                predictions[doc][label] = Double.MIN_VALUE;
-                bipartitions.get(doc + "").add(label + "");
-            }
-        }
-    }
 
     public TreeMap<Integer, TObjectDoubleHashMap<String>> predictProbs2(TIntHashSet mc) {
         predictInternal(mc);

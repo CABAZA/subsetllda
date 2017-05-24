@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package gr.auth.csd.mlkd.atypon.utils;
+package gr.auth.csd.mlkd.utils;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadMXBean;

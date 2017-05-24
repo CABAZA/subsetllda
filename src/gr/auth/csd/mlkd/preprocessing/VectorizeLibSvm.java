@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package gr.auth.csd.mlkd.atypon.preprocessing;
+package gr.auth.csd.mlkd.preprocessing;
 
 import gnu.trove.list.TIntList;
 import gnu.trove.list.array.TIntArrayList;

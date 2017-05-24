@@ -1,9 +1,7 @@
-package gr.auth.csd.mlkd.atypon.mlclassification.labeledlda.models;
+package gr.auth.csd.mlkd.mlclassification.labeledlda.models;
 
 import gnu.trove.iterator.TIntDoubleIterator;
 import gnu.trove.map.hash.TIntDoubleHashMap;
-import gr.auth.csd.mlkd.atypon.lda.Dataset;
-import gr.auth.csd.mlkd.atypon.lda.DatasetTfIdf;
 
 
 
