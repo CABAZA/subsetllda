@@ -19,17 +19,14 @@ import java.util.Random;
 import gr.auth.csd.mlkd.mlclassification.labeledlda.Dataset;
 import gr.auth.csd.mlkd.utils.Pair;
 import gr.auth.csd.mlkd.utils.Utils;
-import java.util.Arrays;
-
 import java.util.Date;
-import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Model implements Runnable {
-
+    
     public Dataset data; // link to a dataset
     public int M = 0; //dataset size (i.e., number of docs)
     public int V = 0; //vocabulary size
@@ -39,14 +36,14 @@ public class Model implements Runnable {
     protected int numSamples = 0; // number of samples taken
     Random rand = new Random();
     protected boolean inference = false;
-
+    
     protected TIntIntHashMap[] z = null;
     protected TIntDoubleHashMap[] nw = null;       // number of instances of word/term j assigned to topic i, size K x V
     protected TIntDoubleHashMap[] nd = null;       // nd[i][j]: number of words in document i assigned to topic j, size M x K
 
     protected double[] nwsum = null;      // nwsum[j]: total number of words assigned to topic j, size K
     public TIntDoubleHashMap[] phi = null;   // phi: topic-word distributions, size K x V
-    public ArrayList<TreeMap<Integer, Double>> theta = null; // theta: document - topic distributions, size M x K
+    public ArrayList<TIntDoubleHashMap> theta = null; // theta: document - topic distributions, size M x K
 
     protected int niters;
     public int nburnin = 50;
@@ -55,10 +52,10 @@ public class Model implements Runnable {
     protected String modelName;
     public int threads;
     private double betaSum;
-
+    
     public Model() {
     }
-
+    
     public Model(Dataset data, int thread, double beta, boolean inf,
             String trainedModelName, int threads, int iters, int burnin) {
         this.data = data;
@@ -74,12 +71,15 @@ public class Model implements Runnable {
         }
         betaSum = V * beta;
         this.inference = inf;
-
+        
         if (inference) {
             String trainedPhi = trainedModelName + ".phi";
             System.out.println(trainedPhi);
             phi = readPhi(trainedPhi);
-            theta = new double[M][K];
+            theta = new ArrayList<>();
+            for (int d = 0; d < M; d++) {
+                theta.add(new TIntDoubleHashMap());
+            }
         } else {
             nw = new TIntDoubleHashMap[K];
             for (int k = 0; k < K; k++) {
@@ -91,29 +91,29 @@ public class Model implements Runnable {
                 phi[k] = new TIntDoubleHashMap();
             }
         }
-
+        
         z = new TIntIntHashMap[M];
         nd = new TIntDoubleHashMap[M];
         for (int m = 0; m < M; m++) {
             nd[m] = new TIntDoubleHashMap();
             z[m] = new TIntIntHashMap();
         }
-
+        
         this.niters = iters;
         this.nburnin = burnin;
         this.thread = thread;
         this.threads = threads;
         this.modelName = trainedModelName;
     }
-
+    
     public int getM() {
         return M;
     }
-
+    
     public int getK() {
         return K;
     }
-
+    
     public void initAlpha() {
         alpha = new double[K];
         for (int k = 0; k < K; k++) {
@@ -124,7 +124,7 @@ public class Model implements Runnable {
             //}
         }
     }
-
+    
     public void initialize() {
         for (int m = 0; m < M; m++) {
             TIntIterator it = data.getDocs().get(m).getWords().iterator();
@@ -134,14 +134,14 @@ public class Model implements Runnable {
                 if (!inference) {
                     int randomIndex = rand.nextInt(data.getDocs().get(m).getLabels().length);
                     topic = data.getDocs().get(m).getLabels()[randomIndex] - 1;
-
+                    
                 } else {
                     topic = rand.nextInt(K);
                 }
-
+                
                 setZInitially(m, w, topic);
             }
-
+            
             if (!inference) {
                 for (int label : data.getDocs().get(m).getLabels()) {
                     it = data.getDocs().get(m).getWords().iterator();
@@ -155,7 +155,7 @@ public class Model implements Runnable {
             }
         }
     }
-
+    
     public void update(int m) {
         double[] p = new double[K];
         //data.getDocs().get(m).getWords().shuffle(new Random());
@@ -172,17 +172,17 @@ public class Model implements Runnable {
             for (int k = 0; k < K_m; k++) {
                 topic = (labels == null) ? k : labels[k] - 1;
                 double prob = probability(w, topic, m);
-
+                
                 p[k] = (k == 0) ? prob : p[k - 1] + prob;
             }
-
+            
             double u = Math.random();
             for (topic = 0; topic < K_m; topic++) {
                 if (p[topic] > u * p[K_m - 1]) {
                     break;
                 }
             }
-
+            
             if (topic == K_m) {
                 topic = K_m - 1;
             }
@@ -193,16 +193,16 @@ public class Model implements Runnable {
             z[m].put(w, topic);
         }
     }
-
+    
     public void save(int twords) {
         if (!inference) {
             saveTwords("twords." + modelName, twords);
             savePhi(modelName);
         } else {
-            saveTheta("theta." + modelName, theta);
+            saveTheta("theta." + modelName);
         }
     }
-
+    
     public static TIntDoubleHashMap[] readPhi(String fi) {
         TIntDoubleHashMap[] p = null;
         try (ObjectInputStream input = new ObjectInputStream(new FileInputStream(fi))) {
@@ -213,7 +213,7 @@ public class Model implements Runnable {
         System.out.println(fi + " loaded: K= " + p.length);
         return p;
     }
-
+    
     public static double[][] readTheta(String th) {
         double[][] p = null;
         try (ObjectInputStream input = new ObjectInputStream(new FileInputStream(th))) {
@@ -224,12 +224,12 @@ public class Model implements Runnable {
         System.out.println(th + " loaded: K= " + p.length);
         return p;
     }
-
+    
     @Override
     public String toString() {
         return "Model{" + "M=" + M + ", V=" + V + ", K=" + K + ", alpha=" + alpha + ", beta=" + beta + ", inference=" + inference + ", niters=" + niters + '}';
     }
-
+    
     protected void saveTwords(String filename, int twords) {
         System.out.println("Saving..");
         try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filename), "UTF-8"))) {
@@ -253,7 +253,7 @@ public class Model implements Runnable {
         } catch (IOException e) {
         }
     }
-
+    
     protected void savePhi(String modelName) {
         try (ObjectOutputStream output = new ObjectOutputStream(new FileOutputStream(modelName + ".phi"))) {
             output.writeObject(this.phi);
@@ -261,31 +261,31 @@ public class Model implements Runnable {
             System.out.println(e);
         }
     }
-
-    protected void saveTheta(String string, double[][] theta) {
+    
+    protected void saveTheta(String string) {
         try (ObjectOutputStream output = new ObjectOutputStream(new FileOutputStream(string))) {
             output.writeObject(theta);
         } catch (IOException e) {
             System.out.println(e);
         }
     }
-
-    public double[][] getTheta() {
+    
+    public ArrayList<TIntDoubleHashMap> getTheta() {
         return theta;
     }
-
-    public void setTheta(double[][] theta) {
+    
+    public void setTheta(ArrayList<TIntDoubleHashMap> theta) {
         this.theta = theta;
     }
-
+    
     public void setPhi(TIntDoubleHashMap[] phi) {
         this.phi = phi;
     }
-
+    
     public TIntDoubleHashMap[] getPhi() {
         return phi;
     }
-
+    
     public void updateParams(int totalSamples) {
         numSamples++;
         if (!inference) {
@@ -295,7 +295,7 @@ public class Model implements Runnable {
         }
         //System.out.println(phi[0]);
     }
-
+    
     protected TIntDoubleHashMap[] computePhi(int totalSamples) {
         for (int k = 0; k < K; k++) {
             TIntDoubleHashMap tempPhi = new TIntDoubleHashMap();
@@ -306,7 +306,7 @@ public class Model implements Runnable {
                 tempPhi.adjustOrPutValue(word, nw[k].get(word) + beta, nw[k].get(word) + beta);
             }
             tempPhi = Utils.normalize(tempPhi, 1.0);
-
+            
             iterator = tempPhi.iterator();
             while (iterator.hasNext()) {
                 iterator.advance();
@@ -319,10 +319,10 @@ public class Model implements Runnable {
         }
         return phi;
     }
-
-    protected double[][] computeTheta(int totalSamples) {
+    
+    protected ArrayList<TIntDoubleHashMap> computeTheta(int totalSamples) {
         System.out.print("Updating parameters...");
-
+        
         for (int m = 0; m < M; m++) {
             double tempTheta[] = new double[K];
             for (int k = 0; k < K; k++) {
@@ -332,20 +332,17 @@ public class Model implements Runnable {
             tempTheta = Utils.normalize(tempTheta, 1.0);
             //if(m==0) System.out.println("theta:"+Arrays.toString(tempTheta));
             for (int k = 0; k < K; k++) {
-                theta.get(m).get(k) = tempTheta[k];
+                theta.get(m).adjustOrPutValue(k, tempTheta[k], tempTheta[k]);
             }
         }
-        //average ove all samples
         if (numSamples == totalSamples) {
             for (int m = 0; m < M; m++) {
-                for (int k = 0; k < K; k++) {
-                    theta[m][k] /= numSamples;
-                }
+                theta.set(m, Utils.normalize(theta.get(m), 1.0));
             }
         }
         return theta;
     }
-
+    
     public float probability(int w, int k, int m) {
         float p;
         if (!inference) {
@@ -359,7 +356,7 @@ public class Model implements Runnable {
         }
         return p;
     }
-
+    
     public void setZInitially(int m, int word, int topic) {
         z[m].put(word, topic);
         nd[m].adjustOrPutValue(topic, 1, 1);
@@ -368,7 +365,7 @@ public class Model implements Runnable {
             nwsum[topic]++; // total number of words assigned to topic j 
         }
     }
-
+    
     public void removeZi(int m, int w, int topic) {
         nd[m].adjustValue(topic, -1);
         if (nd[m].get(topic) == 0) {
@@ -382,7 +379,7 @@ public class Model implements Runnable {
             }
         }
     }
-
+    
     public void addZi(int m, int w, int topic) {
         nd[m].adjustOrPutValue(topic, 1, 1);
         if (!inference) {
@@ -390,7 +387,7 @@ public class Model implements Runnable {
             nwsum[topic] += 1;
         }
     }
-
+    
     public TIntDoubleHashMap[] estimate(boolean save) {
         initAlpha();
         initialize();
@@ -414,7 +411,7 @@ public class Model implements Runnable {
                 updateParams(totalSamples);
             }
         }
-
+        
         System.out.println("Thread no" + thread + " finished\n");
         //Un-comment only if we want one sample at the end of the chain
         //updateParams(totalSamples);
@@ -423,8 +420,8 @@ public class Model implements Runnable {
         }
         return this.getPhi();
     }
-
-    public ArrayList<TreeMap<Integer, Double>> inference() {
+    
+    public ArrayList<TIntDoubleHashMap> inference() {
         initAlpha();
         initialize();
         int totalSamples = (niters - nburnin) / samplingLag;
@@ -443,9 +440,9 @@ public class Model implements Runnable {
         System.out.println("Gibbs sampling for inference completed!");
         return theta;
     }
-
+    
     protected void exec() {
-
+        
         try {
             ArrayList<CallableInferencer> calculators = new ArrayList<>();
             ExecutorService pool = Executors.newFixedThreadPool(threads);
@@ -461,7 +458,7 @@ public class Model implements Runnable {
             Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
+    
     @Override
     public void run() {
         System.out.println("Thread " + thread);
@@ -471,33 +468,23 @@ public class Model implements Runnable {
             inference();
         }
     }
-
-    protected ArrayList<TreeMap<Integer, Double>> sparseTheta() {
-        double p2[][] = new double[theta.length][];
-        for (int doc = 0; doc < theta.length; doc++) {
-            p2[doc] = Arrays.copyOf(theta[doc], theta[0].length);
-        }
-        ArrayList<TreeMap<Integer, Double>> p = new ArrayList<>();
-        for (int doc = 0; doc < p2.length; doc++) {
-            TreeMap<Integer, Double> preds = new TreeMap();
-            if (100 > theta[0].length) {
-                for (int k = 0; k < theta[0].length; k++) {
-                    if (p2[doc][k] != 0) {
-                        preds.put(k, p2[doc][k]);
-                    }
-                }
+    
+    public ArrayList<TIntDoubleHashMap> sparseTheta() {
+        ArrayList<TIntDoubleHashMap> p = new ArrayList<>();
+        for (int doc = 0; doc < theta.size(); doc++) {
+            TIntDoubleHashMap preds = new TIntDoubleHashMap();
+            if (theta.get(doc).size() < 100) {
+                preds = theta.get(doc);
             } else {
                 for (int k = 0; k < 100; k++) {
-                    int label = Utils.maxIndex(p2[doc]);
-                    if (p2[doc][label] != 0) {
-                        preds.put(label, p2[doc][label]);
-                    }
-                    p2[doc][label] = -1;
+                    int label = Utils.maxIndex(theta.get(doc));
+                    preds.put(label, theta.get(doc).get(label));
+                    theta.get(doc).remove(label);
                 }
             }
             p.add(doc, preds);
         }
         return p;
     }
-
+    
 }

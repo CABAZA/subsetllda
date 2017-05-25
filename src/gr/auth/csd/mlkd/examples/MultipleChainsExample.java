@@ -16,10 +16,13 @@
  */
 package gr.auth.csd.mlkd.examples;
 
+import gnu.trove.map.hash.TIntDoubleHashMap;
 import gr.auth.csd.mlkd.mlclassification.MLClassifier;
 import gr.auth.csd.mlkd.mlclassification.labeledlda.LLDA;
 import gr.auth.csd.mlkd.utils.LLDACmdOption;
 import gr.auth.csd.mlkd.utils.Timer;
+import gr.auth.csd.mlkd.utils.Utils;
+import java.util.ArrayList;
 
 /**
  *
@@ -30,7 +33,7 @@ public class MultipleChainsExample {
     public static void main(String args[]) {
         Timer timer = new Timer();
         MLClassifier mlc = null;
-        ArrayList<TreeMap<Integer, Double>> predictions;
+        ArrayList<TIntDoubleHashMap> predictions = null;
         LLDACmdOption option2 = new LLDACmdOption(args);
         int chains = 2;
 
@@ -42,20 +45,19 @@ public class MultipleChainsExample {
             if (i == 0) {
                 predictions = ((LLDA) mlc).getPredictions();
             } else {
-                for (int d = 0; d < predictions.length; d++) {
-                    for (int k = 0; k < predictions[0].length; k++) {
-                        predictions[d][k] += ((LLDA) mlc).getPredictions()[d][k];
+                for (int d = 0; d < predictions.size(); d++) {
+                    for (int k = 0; k < predictions.get(0).size(); k++) {
+                        double th = mlc.getPredictions().get(d).get(k);
+                        predictions.get(d).adjustOrPutValue(k, th, th);
                     }
                 }
             }
         }
 
         //normalize
-        for (int d = 0; d < predictions.length; d++) {
-            for (int k = 0; k < predictions[0].length; k++) {
-                predictions[d][k] /= chains;
+        for (int d = 0; d < predictions.size(); d++) {
+            predictions.set(d, Utils.normalize(predictions.get(d), 1.0));
 
-            }
         }
         mlc.setPredictions(predictions);
         mlc.savePredictions();

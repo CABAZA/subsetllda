@@ -35,7 +35,10 @@ public class SubsetModel extends InferenceCGSpModel implements Serializable {
         String trainedPhi = trainedModelName + ".phi";
         System.out.println(trainedPhi);
         phi = readPhi(trainedPhi);
-        theta = new double[M][];
+        theta = new ArrayList<>();
+        for (int d = 0; d < M; d++) {
+            theta.add(new TIntDoubleHashMap());
+        }
         z = new TIntIntHashMap[M];
         nd = new TIntDoubleHashMap[M];
         for (int m = 0; m < M; m++) {
@@ -56,7 +59,6 @@ public class SubsetModel extends InferenceCGSpModel implements Serializable {
             int size = keySet.length;
             possibleLabels[d] = new int[size];
             alphaPrior[d] = new double[size];
-            theta[d] = new double[size];
             int k = 0;
             for (int index : keySet) {
                 possibleLabels[d][k] = index;
@@ -120,7 +122,7 @@ public class SubsetModel extends InferenceCGSpModel implements Serializable {
     }
 
     @Override
-    public double[][] computeTheta(int totalSamples) {
+    public ArrayList<TIntDoubleHashMap> computeTheta(int totalSamples) {
         System.out.print("Updating parameters...");
         for (int d = 0; d < M; d++) {
             int[] labels = possibleLabels[d];
@@ -136,14 +138,14 @@ public class SubsetModel extends InferenceCGSpModel implements Serializable {
                 p = Utils.normalize(p, 1);
 
                 //sum probabilities over the document
-                for (int k = 0; k < K_m; k++) {
-                    theta[d][k] += p[k];
+                for (int k = 0; k < K; k++) {
+                    theta.get(d).adjustOrPutValue(k, p[k], p[k]);
                 }
             }
         }
         if (numSamples == totalSamples) {
             for (int m = 0; m < M; m++) {
-                theta[m] = Utils.normalize(theta[m], 1.0);
+                theta.set(m, Utils.normalize(theta.get(m), 1.0));
             }
         }
         return theta;

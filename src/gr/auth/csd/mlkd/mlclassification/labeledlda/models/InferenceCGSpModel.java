@@ -1,8 +1,10 @@
 package gr.auth.csd.mlkd.mlclassification.labeledlda.models;
 
 import gnu.trove.list.array.TIntArrayList;
+import gnu.trove.map.hash.TIntDoubleHashMap;
 import gr.auth.csd.mlkd.mlclassification.labeledlda.Dataset;
 import gr.auth.csd.mlkd.utils.Utils;
+import java.util.ArrayList;
 
 
 
@@ -21,7 +23,7 @@ public class InferenceCGSpModel extends PriorModel {
     }
        
     @Override
-    protected double[][] computeTheta(int totalSamples) {
+    protected ArrayList<TIntDoubleHashMap> computeTheta(int totalSamples) {
         System.out.print("Updating parameters...");
         for (int d = 0; d < M; d++) {
             double tempTheta[] = new double[K];
@@ -39,24 +41,15 @@ public class InferenceCGSpModel extends PriorModel {
 
                 //sum probabilities over the document
                 for (int k = 0; k < K; k++) {
-                    theta[d][k] += p[k];
+                    theta.get(d).adjustOrPutValue(k, p[k], p[k]);
                 }
             }
         }
-
-        //System.out.println(Arrays.toString(theta[0]));
         if (numSamples == totalSamples) {
             for (int m = 0; m < M; m++) {
-                for (int k = 0; k < K; k++) {
-                    //average over samples
-                    theta[m][k] /= numSamples;
-                }
-                //average over Nd and Sum_alpha
-                theta[m] = Utils.normalize(theta[m], 1.0);
+                theta.set(m, Utils.normalize(theta.get(m), 1.0));
             }
         }
-
-        //System.out.println(Arrays.toString(theta[0]));
         return theta;
     }
 }

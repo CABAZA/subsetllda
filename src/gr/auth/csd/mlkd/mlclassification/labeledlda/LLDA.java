@@ -23,7 +23,7 @@ import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class LLDA extends  MLClassifier{
+public class LLDA extends MLClassifier {
 
     private int K;
     Dataset data;
@@ -50,7 +50,6 @@ public class LLDA extends  MLClassifier{
         this.chains = option.chains;
         K = option.K;
     }
-
 
     @Override
     public void train() {
@@ -119,19 +118,22 @@ public class LLDA extends  MLClassifier{
         data = new DatasetTfIdf(testFile, true, true, numFeatures, fi, 0);
         data.create();
         M = data.getDocs().size();
-        double[][] thetaSum = new double[M][data.getK()];
+        ArrayList<TIntDoubleHashMap> thetaSum = new ArrayList<>();
+        for (int m = 0; m < M; m++) {
+            thetaSum.add(new TIntDoubleHashMap());
+        }
         Model newModel = null;
         System.out.println("Serial Inference");
         for (int i = 0; i < chains; i++) {
             newModel = new InferenceCGSpModel(data, trainedModelName, threads, iters, burnin);
             newModel.inference();
-            for (int m = 0; m < newModel.M; m++) {
+            for (int m = 0; m < M; m++) {
                 //sum up probabilities from the different markov chains
                 for (int k = 0; k < newModel.K; k++) {
-                    thetaSum[m][k] += newModel.getTheta()[m][k];
+                    double th = newModel.getTheta().get(m).get(k);
+                    thetaSum.get(m).adjustOrPutValue(k, th,th);
                 }
             }
-
             if (i < chains - 1) {
                 newModel = null;
                 System.gc();
@@ -139,8 +141,8 @@ public class LLDA extends  MLClassifier{
         }
         //normalize
         System.out.println("Serial inference finished. Averaging....");
-        for (int doc = 0; doc < thetaSum.length; doc++) {
-            thetaSum[doc] = Utils.normalize(thetaSum[doc], 1.0);
+        for (int doc = 0; doc < thetaSum.size(); doc++) {
+            thetaSum.set(doc, Utils.normalize(thetaSum.get(doc), 1.0));
         }
         newModel.setTheta(thetaSum);
         newModel.save(15);

@@ -16,15 +16,12 @@
  */
 package gr.auth.csd.mlkd.mlclassification;
 
-import gr.auth.csd.mlkd.utils.Utils;
+import gnu.trove.iterator.TIntDoubleIterator;
+import gnu.trove.map.hash.TIntDoubleHashMap;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -35,7 +32,7 @@ import java.util.logging.Logger;
 public abstract class MLClassifier {
 
     protected int threads;
-    protected ArrayList<TreeMap<Integer, Double>> predictions;
+    protected ArrayList<TIntDoubleHashMap> predictions;
     protected int numLabels = 0;
     public String testFile;
     protected String trainingFile;
@@ -62,13 +59,13 @@ public abstract class MLClassifier {
 
     public void savePredictions() {
         try (PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(predictionsFilename)))) {
-            for (TreeMap<Integer, Double> p1 : predictions) {
+            for (TIntDoubleHashMap p1 : predictions) {
                 StringBuilder sb = new StringBuilder();
-                Iterator<Map.Entry<Integer, Double>> it = p1.entrySet().iterator();
+                TIntDoubleIterator it = p1.iterator();
                 int i=0;
                 while(it.hasNext()) {
-                    Map.Entry<Integer, Double> next = it.next();
-                    sb.append(next.getKey()).append(":").append(next.getValue());
+                    it.advance();
+                    sb.append(it.key()).append(":").append(it.value());
                     if(i<p1.size()-1) sb.append(" ");
                     else sb.append("\n");
                 }  
@@ -80,11 +77,11 @@ public abstract class MLClassifier {
         }
     }
 
-    public ArrayList<TreeMap<Integer, Double>> getPredictions() {
+    public ArrayList<TIntDoubleHashMap> getPredictions() {
         return this.predictions;
     }
 
-    public void setPredictions(ArrayList<TreeMap<Integer, Double>> predictions) {
+    public void setPredictions(ArrayList<TIntDoubleHashMap> predictions) {
         this.predictions = predictions;
     }
 
