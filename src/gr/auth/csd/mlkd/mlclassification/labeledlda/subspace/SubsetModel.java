@@ -138,8 +138,8 @@ public class SubsetModel extends InferenceCGSpModel implements Serializable {
                 p = Utils.normalize(p, 1);
 
                 //sum probabilities over the document
-                for (int k = 0; k < K; k++) {
-                    theta.get(d).adjustOrPutValue(k, p[k], p[k]);
+                for (int k = 0; k < K_m; k++) {
+                    theta.get(d).adjustOrPutValue(labels[k], p[k], p[k]);
                 }
             }
         }
