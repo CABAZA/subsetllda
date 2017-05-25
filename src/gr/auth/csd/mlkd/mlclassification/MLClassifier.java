@@ -46,7 +46,7 @@ public abstract class MLClassifier {
     protected int offset = 0;
     protected String predictionsFilename = "predictions";
 
-    public MLClassifier(String trainingFile, String testFile, 
+    public MLClassifier(String trainingFile, String testFile,
             int nLabels, int threads) {
         this.trainingFile = trainingFile;
         this.testFile = testFile;
@@ -64,45 +64,14 @@ public abstract class MLClassifier {
 
     public abstract double[][] predictInternal();
 
-    protected void writeProbs(TreeMap<String, TObjectDoubleHashMap<String>> probMap, String scorestxt) {
-        try (PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(scorestxt)))) {
-            Iterator<Map.Entry<String, TObjectDoubleHashMap<String>>> it = probMap.entrySet().iterator();
-            while (it.hasNext()) {
-                Map.Entry<String, TObjectDoubleHashMap<String>> next = it.next();
-                //System.out.println(next.getValue());
-                TObjectDoubleIterator<String> it2 = next.getValue().iterator();
-                TreeMap<Integer, Double> ordered = new TreeMap<>();
-                while (it2.hasNext()) {
-                    it2.advance();
-                    ordered.put(Integer.parseInt(it2.key()), it2.value());
-                }
-                StringBuilder sb = new StringBuilder();
-                int i = 0;
-                Iterator<Map.Entry<Integer, Double>> it3 = ordered.entrySet().iterator();
-                while (it3.hasNext()) {
-                    Map.Entry<Integer, Double> n = it3.next();
-                    sb.append(n.getKey() - 1).append(":").append(Math.round(n.getValue() * 1000000.0) / 1000000.0);
-                    if (i < ordered.size() - 1) {
-                        sb.append(" ");
-                    }
-                    i++;
-                }
-                sb.append("\n");
-                writer.write(sb.toString());
-            }
-        } catch (Exception ex) {
-            Logger.getLogger(MLClassifier.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
     public void savePredictions() {
         double p2[][] = new double[predictions.length][];
         for (int doc = 0; doc < predictions.length; doc++) {
             p2[doc] = Arrays.copyOf(predictions[doc], predictions[0].length);
         }
-        ArrayList<TIntDoubleHashMap> p = new ArrayList<>();
+        ArrayList<TreeMap<Integer, Double>> p = new ArrayList<>();
         for (int doc = 0; doc < p2.length; doc++) {
-            TIntDoubleHashMap preds = new TIntDoubleHashMap();
+            TreeMap<Integer, Double> preds = new TreeMap();
             if (100 > predictions[0].length) {
                 for (int k = 0; k < predictions[0].length; k++) {
                     if (p2[doc][k] != 0) {
@@ -120,7 +89,21 @@ public abstract class MLClassifier {
             }
             p.add(doc, preds);
         }
-        Utils.writeObject(p, predictionsFilename);
+        try (PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(predictionsFilename)))) {
+            for (TreeMap<Integer, Double> p1 : p) {
+                StringBuilder sb = new StringBuilder();
+                Iterator<Map.Entry<Integer, Double>> it = p1.entrySet().iterator();
+                while(it.hasNext()) {
+                    Map.Entry<Integer, Double> next = it.next();
+                    sb.append(next.getKey()).append(":").append(next.getValue());
+                }
+                sb.append("\n");
+                writer.write(sb.toString());
+            }
+
+        } catch (Exception ex) {
+            Logger.getLogger(MLClassifier.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     public double[][] getPredictions() {
@@ -130,5 +113,5 @@ public abstract class MLClassifier {
     public void setPredictions(double[][] predictions) {
         this.predictions = predictions;
     }
-    
+
 }

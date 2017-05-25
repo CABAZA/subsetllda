@@ -35,7 +35,7 @@ public class SubsetLLDAfExample {
         option2.K = 3993;
         //option2.parallel=true;
         SubsetLLDA mlc = new SubsetLLDA(option2);
-        mlc.train();
+//        mlc.train();
         mlc.predict();   
 //        mlc.predictProbs2(null);
     }
