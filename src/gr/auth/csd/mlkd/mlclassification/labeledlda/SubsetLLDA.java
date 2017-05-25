@@ -1,7 +1,6 @@
 package gr.auth.csd.mlkd.mlclassification.labeledlda;
 
 import gnu.trove.map.hash.TIntDoubleHashMap;
-import gnu.trove.set.hash.TIntHashSet;
 import gr.auth.csd.mlkd.mlclassification.labeledlda.models.Model;
 import gr.auth.csd.mlkd.mlclassification.labeledlda.subspace.MostRelevantLibSvm;
 import gr.auth.csd.mlkd.mlclassification.labeledlda.subspace.SubsetModel;
@@ -18,7 +17,7 @@ public class SubsetLLDA extends LLDA {
 
     public SubsetLLDA(LLDACmdOption option) {
         super(option);
-        this.possibleLabels = "alpha";
+        this.possibleLabels = "alpha"+option.testFile;
     }
 
     @Override
@@ -29,7 +28,7 @@ public class SubsetLLDA extends LLDA {
     }
 
     @Override
-    public double[][] predictInternal() {
+    public void predictInternal() {
         TIntDoubleHashMap[] fi = Model.readPhi(trainedModelName + ".phi");
         this.numFeatures = Utils.max(fi);
         if (!new File(testFile + ".wlabels").exists()) {
@@ -46,7 +45,6 @@ public class SubsetLLDA extends LLDA {
         System.out.println("Serial inference finished.");
         newModel.save(15);
         predictions = newModel.getTheta();
-        return predictions;
     }
 
 }

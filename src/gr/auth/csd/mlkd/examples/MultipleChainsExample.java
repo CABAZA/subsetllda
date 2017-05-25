@@ -30,10 +30,9 @@ public class MultipleChainsExample {
     public static void main(String args[]) {
         Timer timer = new Timer();
         MLClassifier mlc = null;
-
+        ArrayList<TreeMap<Integer, Double>> predictions;
         LLDACmdOption option2 = new LLDACmdOption(args);
         int chains = 2;
-        double[][] predictions = null;
 
         for (int i = 0; i < chains; i++) {
             mlc = new LLDA(option2);

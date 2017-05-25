@@ -16,6 +16,7 @@ import gr.auth.csd.mlkd.utils.Utils;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
@@ -112,7 +113,7 @@ public class LLDA extends  MLClassifier{
     }
 
     @Override
-    public double[][] predictInternal() {
+    public void predictInternal() {
         TIntDoubleHashMap[] fi = Model.readPhi(trainedModelName + ".phi");
         this.numFeatures = Utils.max(fi);
         data = new DatasetTfIdf(testFile, true, true, numFeatures, fi, 0);
@@ -144,59 +145,5 @@ public class LLDA extends  MLClassifier{
         newModel.setTheta(thetaSum);
         newModel.save(15);
         predictions = thetaSum;
-        return predictions;
     }
-
-
-
-
-    public TreeMap<Integer, TObjectDoubleHashMap<String>> predictProbs2(TIntHashSet mc) {
-        predictInternal();
-        int threshold = 40; //define how many labels to keep in the ranking, this is done for efficiency in storage
-        TreeMap<Integer, TObjectDoubleHashMap<String>> probMap = new TreeMap<>();
-        for (int doc = 0; doc < predictions.length; doc++) {
-
-            if (!probMap.containsKey(doc)) {
-                probMap.put(doc, new TObjectDoubleHashMap<>());
-            }
-            for (int k = 0; k < threshold; k++) {
-                int l = Utils.maxIndex(predictions[doc]);
-                probMap.get(doc).put(l + "", predictions[doc][l]);
-                predictions[doc][l] = Double.MIN_VALUE;
-            }
-        }
-        writeProbs2(probMap, "scores.txt");
-        return probMap;
-    }
-    
-        protected void writeProbs2(TreeMap<Integer, TObjectDoubleHashMap<String>> probMap, String scorestxt) {
-        try (PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(scorestxt)))) {
-            Iterator<Map.Entry<Integer, TObjectDoubleHashMap<String>>> it = probMap.entrySet().iterator();
-            while (it.hasNext()) {
-                Map.Entry<Integer, TObjectDoubleHashMap<String>> next = it.next();
-                //System.out.println(next.getKey());
-                TObjectDoubleIterator<String> it2 = next.getValue().iterator();
-                TreeMap<Integer, Double> ordered  = new TreeMap<>();
-                while(it2.hasNext()) {
-                    it2.advance();
-                    ordered.put(Integer.parseInt(it2.key()), it2.value());
-                }
-                StringBuilder sb = new StringBuilder();
-                int i=0;
-                Iterator<Map.Entry<Integer, Double>> it3 = ordered.entrySet().iterator();
-                while(it3.hasNext()) {
-                    Map.Entry<Integer, Double> n = it3.next();
-                    sb.append(n.getKey()).append(":").append(Math.round(n.getValue() * 1000000.0) / 1000000.0);
-                    if(i<ordered.size()-1) sb.append(" ");
-                    i++;
-                }
-                sb.append("\n");
-                writer.write(sb.toString()); 
-            }
-        } catch (Exception ex) {
-            Logger.getLogger(MLClassifier.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
-
 }

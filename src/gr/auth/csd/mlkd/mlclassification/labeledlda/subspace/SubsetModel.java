@@ -11,6 +11,7 @@ import gr.auth.csd.mlkd.mlclassification.labeledlda.models.InferenceCGSpModel;
 import static gr.auth.csd.mlkd.mlclassification.labeledlda.models.Model.readPhi;
 import gr.auth.csd.mlkd.utils.Utils;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 //todo: priors, frequency*similarity, shuffle word order, shuffle doc order, cgs vs cgs_p
 public class SubsetModel extends InferenceCGSpModel implements Serializable {
@@ -21,7 +22,7 @@ public class SubsetModel extends InferenceCGSpModel implements Serializable {
 
     public SubsetModel(Dataset data, String trainedModelName, int threads, int iters, int burnin, String ls) {
         super();
-
+        this.inference = true;
         this.data = data;
         K = data.getK();
         //+ allocate memory and assign values for variables		
@@ -55,7 +56,7 @@ public class SubsetModel extends InferenceCGSpModel implements Serializable {
             int size = keySet.length;
             possibleLabels[d] = new int[size];
             alphaPrior[d] = new double[size];
-            theta[d] =  new double[size];
+            theta[d] = new double[size];
             int k = 0;
             for (int index : keySet) {
                 possibleLabels[d][k] = index;
@@ -119,7 +120,7 @@ public class SubsetModel extends InferenceCGSpModel implements Serializable {
     }
 
     @Override
-    public void updateParams(int totalSamples) {
+    public double[][] computeTheta(int totalSamples) {
         System.out.print("Updating parameters...");
         for (int d = 0; d < M; d++) {
             int[] labels = possibleLabels[d];
@@ -136,7 +137,6 @@ public class SubsetModel extends InferenceCGSpModel implements Serializable {
 
                 //sum probabilities over the document
                 for (int k = 0; k < K_m; k++) {
-                    int topic = labels[k] - 1;
                     theta[d][k] += p[k];
                 }
             }
@@ -146,5 +146,6 @@ public class SubsetModel extends InferenceCGSpModel implements Serializable {
                 theta[m] = Utils.normalize(theta[m], 1.0);
             }
         }
+        return theta;
     }
 }

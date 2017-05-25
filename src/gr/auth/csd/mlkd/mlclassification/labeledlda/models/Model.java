@@ -6,7 +6,6 @@ import gnu.trove.map.hash.TIntDoubleHashMap;
 import gnu.trove.map.hash.TIntIntHashMap;
 import gr.auth.csd.mlkd.mlclassification.labeledlda.CallableInferencer;
 
-
 import java.io.BufferedWriter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -20,8 +19,10 @@ import java.util.Random;
 import gr.auth.csd.mlkd.mlclassification.labeledlda.Dataset;
 import gr.auth.csd.mlkd.utils.Pair;
 import gr.auth.csd.mlkd.utils.Utils;
+import java.util.Arrays;
 
 import java.util.Date;
+import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
@@ -45,7 +46,7 @@ public class Model implements Runnable {
 
     protected double[] nwsum = null;      // nwsum[j]: total number of words assigned to topic j, size K
     public TIntDoubleHashMap[] phi = null;   // phi: topic-word distributions, size K x V
-    public double[][] theta = null; // theta: document - topic distributions, size M x K
+    public ArrayList<TreeMap<Integer, Double>> theta = null; // theta: document - topic distributions, size M x K
 
     protected int niters;
     public int nburnin = 50;
@@ -119,7 +120,7 @@ public class Model implements Runnable {
             //if (inference) {
             //alpha[k] = 50 / K;
             //} else {
-                alpha[k] = 1.0;
+            alpha[k] = 1.0;
             //}
         }
     }
@@ -331,7 +332,7 @@ public class Model implements Runnable {
             tempTheta = Utils.normalize(tempTheta, 1.0);
             //if(m==0) System.out.println("theta:"+Arrays.toString(tempTheta));
             for (int k = 0; k < K; k++) {
-                theta[m][k] += tempTheta[k];
+                theta.get(m).get(k) = tempTheta[k];
             }
         }
         //average ove all samples
@@ -349,10 +350,13 @@ public class Model implements Runnable {
         float p;
         if (!inference) {
             //return (float) ((nd[m].get(k) + 50.0 / data.getDocs().get(m).getLabels().length) * (nw[k].get(w) + beta) / (nwsum[k] + betaSum));
-            p =  (float) ((nd[m].get(k) + alpha[k]) * (nw[k].get(w) + beta) / (nwsum[k] + nw[k].size() * beta));
+            p = (float) ((nd[m].get(k) + alpha[k]) * (nw[k].get(w) + beta) / (nwsum[k] + nw[k].size() * beta));
+        } else {
+            p = (float) ((nd[m].get(k) + alpha[k]) * phi[k].get(w));
         }
-        else p =  (float) ((nd[m].get(k) + alpha[k]) * phi[k].get(w));
-        if(new Double(p).isNaN()) return 0;
+        if (new Double(p).isNaN()) {
+            return 0;
+        }
         return p;
     }
 
@@ -402,7 +406,7 @@ public class Model implements Runnable {
             }
 
             //Collections.shuffle(d);
-            for (Integer m:d) {
+            for (Integer m : d) {
                 update(m);
             }
             if (i > nburnin && i % samplingLag == 0) {
@@ -420,7 +424,7 @@ public class Model implements Runnable {
         return this.getPhi();
     }
 
-    public double[][] inference() {
+    public ArrayList<TreeMap<Integer, Double>> inference() {
         initAlpha();
         initialize();
         int totalSamples = (niters - nburnin) / samplingLag;
@@ -450,7 +454,7 @@ public class Model implements Runnable {
             }
             pool.invokeAll(calculators);
             pool.shutdown();
-            
+
 //        ForkJoinPool fjPool = new ForkJoinPool(threads);
 //        fjPool.invoke(new ForkInferencer(newModel, 0, (newModel.M-1)));       
         } catch (InterruptedException ex) {
@@ -466,6 +470,34 @@ public class Model implements Runnable {
         } else {
             inference();
         }
+    }
+
+    protected ArrayList<TreeMap<Integer, Double>> sparseTheta() {
+        double p2[][] = new double[theta.length][];
+        for (int doc = 0; doc < theta.length; doc++) {
+            p2[doc] = Arrays.copyOf(theta[doc], theta[0].length);
+        }
+        ArrayList<TreeMap<Integer, Double>> p = new ArrayList<>();
+        for (int doc = 0; doc < p2.length; doc++) {
+            TreeMap<Integer, Double> preds = new TreeMap();
+            if (100 > theta[0].length) {
+                for (int k = 0; k < theta[0].length; k++) {
+                    if (p2[doc][k] != 0) {
+                        preds.put(k, p2[doc][k]);
+                    }
+                }
+            } else {
+                for (int k = 0; k < 100; k++) {
+                    int label = Utils.maxIndex(p2[doc]);
+                    if (p2[doc][label] != 0) {
+                        preds.put(label, p2[doc][label]);
+                    }
+                    p2[doc][label] = -1;
+                }
+            }
+            p.add(doc, preds);
+        }
+        return p;
     }
 
 }
