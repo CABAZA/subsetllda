@@ -54,15 +54,15 @@ public abstract class MLClassifier {
         this.threads = threads;
     }
 
-    public void predict(TIntHashSet mc) {
-        predictInternal(mc);
+    public void predict() {
+        predictInternal();
         savePredictions();
 
     }
 
     public abstract void train();
 
-    public abstract double[][] predictInternal(TIntHashSet mc);
+    public abstract double[][] predictInternal();
 
     protected void writeProbs(TreeMap<String, TObjectDoubleHashMap<String>> probMap, String scorestxt) {
         try (PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(scorestxt)))) {
@@ -95,7 +95,7 @@ public abstract class MLClassifier {
         }
     }
 
-    private void savePredictions() {
+    public void savePredictions() {
         double p2[][] = new double[predictions.length][];
         for (int doc = 0; doc < predictions.length; doc++) {
             p2[doc] = Arrays.copyOf(predictions[doc], predictions[0].length);
@@ -122,4 +122,13 @@ public abstract class MLClassifier {
         }
         Utils.writeObject(p, predictionsFilename);
     }
+
+    public double[][] getPredictions() {
+        return this.predictions;
+    }
+
+    public void setPredictions(double[][] predictions) {
+        this.predictions = predictions;
+    }
+    
 }

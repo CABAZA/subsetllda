@@ -14,18 +14,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package gr.auth.csd.mlkd.atypon.examples;
+package gr.auth.csd.mlkd.examples;
 
 import gnu.trove.map.hash.TObjectDoubleHashMap;
-import gr.auth.csd.mlkd.atypon.CmdOption;
-import gr.auth.csd.mlkd.atypon.LLDACmdOption;
-import gr.auth.csd.mlkd.atypon.evaluation.PrecisionAtK;
-import gr.auth.csd.mlkd.atypon.mlclassification.MLClassifier;
-import gr.auth.csd.mlkd.atypon.mlclassification.labeledlda.SubsetLLDA;
-import gr.auth.csd.mlkd.atypon.preprocessing.CorpusJSON;
-import gr.auth.csd.mlkd.atypon.preprocessing.Dictionary;
-import gr.auth.csd.mlkd.atypon.preprocessing.Labels;
-import gr.auth.csd.mlkd.atypon.utils.Timer;
+
+
+import gr.auth.csd.mlkd.mlclassification.MLClassifier;
+import gr.auth.csd.mlkd.mlclassification.labeledlda.SubsetLLDA;
+import gr.auth.csd.mlkd.utils.CmdOption;
+import gr.auth.csd.mlkd.utils.LLDACmdOption;
+import gr.auth.csd.mlkd.utils.Timer;
 import java.util.TreeMap;
 
 /**
@@ -53,14 +51,7 @@ public class SubsetLLDAExample10Fold {
     }
 
     private static void perFile(CmdOption option, Timer timer, LLDACmdOption option2) {
-        CorpusJSON corpus = new CorpusJSON(option.trainingFile);
-        Labels labels = new Labels(corpus);
-        //System.out.println(labels.getLabels());
-        labels.writeLabels(option.labels);
-        Dictionary dictionary = new Dictionary(corpus, option.lowUnigrams, option.highUnigrams,
-                option.lowBigrams, option.highBigrams);
-        System.out.println(timer.duration());
-        dictionary.writeDictionary(option.dictionary);
+        
         MLClassifier mlc;
 
         mlc = new SubsetLLDA(option2);
@@ -69,17 +60,8 @@ public class SubsetLLDAExample10Fold {
         System.out.println(trainingTime.durationSeconds());
         //mlc.predict(null);
         Timer testingTime = new Timer();
-        TreeMap<String, TObjectDoubleHashMap<String>> probabilities = mlc.predictProbs(null);
+        mlc.predict();
         System.out.println(testingTime.durationSeconds());
         //Utils.writeObject(probabilities, "probsfile");
-        //mlc.createBipartitions();
-        //mlc.createBipartitionsFromProbs(option.metalabelerFile, probabilities);
-        mlc.bipartitionsWrite(option.bipartitionsFile);
-
-        for (int i = 1; i <= 5; i++) {
-            PrecisionAtK ev3 = new PrecisionAtK(i, labels, new CorpusJSON(option.testFile), probabilities);
-            ev3.evaluate();
-        }
-
     }
 }

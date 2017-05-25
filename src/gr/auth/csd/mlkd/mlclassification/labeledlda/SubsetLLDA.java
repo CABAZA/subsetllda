@@ -29,7 +29,7 @@ public class SubsetLLDA extends LLDA {
     }
 
     @Override
-    public double[][] predictInternal(TIntHashSet mc) {
+    public double[][] predictInternal() {
         TIntDoubleHashMap[] fi = Model.readPhi(trainedModelName + ".phi");
         this.numFeatures = Utils.max(fi);
         if (!new File(testFile + ".wlabels").exists()) {

@@ -112,7 +112,7 @@ public class LLDA extends  MLClassifier{
     }
 
     @Override
-    public double[][] predictInternal(TIntHashSet mc) {
+    public double[][] predictInternal() {
         TIntDoubleHashMap[] fi = Model.readPhi(trainedModelName + ".phi");
         this.numFeatures = Utils.max(fi);
         data = new DatasetTfIdf(testFile, true, true, numFeatures, fi, 0);
@@ -151,7 +151,7 @@ public class LLDA extends  MLClassifier{
 
 
     public TreeMap<Integer, TObjectDoubleHashMap<String>> predictProbs2(TIntHashSet mc) {
-        predictInternal(mc);
+        predictInternal();
         int threshold = 40; //define how many labels to keep in the ranking, this is done for efficiency in storage
         TreeMap<Integer, TObjectDoubleHashMap<String>> probMap = new TreeMap<>();
         for (int doc = 0; doc < predictions.length; doc++) {
@@ -197,5 +197,6 @@ public class LLDA extends  MLClassifier{
             Logger.getLogger(MLClassifier.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+
 
 }

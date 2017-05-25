@@ -16,15 +16,15 @@
  */
 package gr.auth.csd.mlkd.examples;
 
-import gr.auth.csd.mlkd.atypon.mlclassification.labeledlda.SubsetLLDATfIdf;
-import gr.auth.csd.mlkd.atypon.utils.Timer;
+import gr.auth.csd.mlkd.mlclassification.labeledlda.SubsetLLDA;
+import gr.auth.csd.mlkd.utils.Timer;
 import gr.auth.csd.mlkd.utils.LLDACmdOption;
 
 /**
  *
  * @author Yannis Papanikolaou
  */
-public class SubsetLLDAvsLLDATfIdfExample {
+public class SubsetLLDAfExample {
 
     public static void main(String args[]) {
         Timer timer = new Timer();
@@ -34,9 +34,9 @@ public class SubsetLLDAvsLLDATfIdfExample {
 //        option2.testFile = "eurlex_test.txt";
         option2.K = 3993;
         //option2.parallel=true;
-        SubsetLLDATfIdf mlc = new SubsetLLDATfIdf(option2);
+        SubsetLLDA mlc = new SubsetLLDA(option2);
         mlc.train();
-        mlc.predict(null);   
+        mlc.predict();   
 //        mlc.predictProbs2(null);
     }
 }
