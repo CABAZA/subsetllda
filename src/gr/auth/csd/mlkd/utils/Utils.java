@@ -568,8 +568,8 @@ public class Utils {
         return intersection(testDocument.keySet(), trainDocument.keySet()) / union(testDocument.keySet(), trainDocument.keySet());
     }
 
-    private static int intersection(TIntSet k, TIntSet k2) {
-        int count = 0;
+    private static double intersection(TIntSet k, TIntSet k2) {
+        double count = 0;
         //if (k.size() <= k2.size()) {
         TIntIterator it = k.iterator();
         while (it.hasNext()) {
@@ -633,8 +633,8 @@ public class Utils {
         }
     }
 
-    private static int union(TIntSet k, TIntSet k2) {
-        int count = 0;
+    private static double union(TIntSet k, TIntSet k2) {
+        double count = 0;
         TIntIterator it = k.iterator();
         count = k.size() + k2.size();
         while (it.hasNext()) {

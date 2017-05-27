@@ -25,7 +25,7 @@ public class SubsetLLDA extends LLDA {
     public void train() {
         super.train();
         //mr = new MostRelevantTfIdf(10, this.testFile, this.trainingFile);
-        mr = new MostRelevantJaccard(10, this.testFile, this.trainingFile);
+        //mr = new MostRelevantJaccard(10, this.testFile, this.trainingFile);
     }
 
     @Override
@@ -34,7 +34,7 @@ public class SubsetLLDA extends LLDA {
         this.numFeatures = Utils.max(fi);
         if (!new File(testFile + ".wlabels").exists()) {
             mr = new MostRelevantTfIdf(10, this.testFile, this.trainingFile);
-            //mr = new MostRelevantTfIdfLibSvmJaccard(10, this.testFile, this.trainingFile);
+            //mr = new MostRelevantJaccard(10, this.testFile, this.trainingFile);
             mr.mostRelevant();
         }
         data = new DatasetTfIdf(testFile + ".wlabels", true, numFeatures, fi);
