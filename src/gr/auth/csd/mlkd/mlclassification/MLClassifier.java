@@ -33,10 +33,6 @@ public abstract class MLClassifier {
 
     protected int threads;
     protected ArrayList<TIntDoubleHashMap> predictions;
-<<<<<<< HEAD
-=======
-    protected int numLabels = 0;
->>>>>>> 16d2f71280b9dd5d7eed5416ba48abc7b83ed61a
     public String testFile;
     protected String trainingFile;
     protected int offset = 0;
@@ -69,12 +65,8 @@ public abstract class MLClassifier {
                     sb.append(it.key()).append(":").append(it.value());
                     if(i<p1.size()-1) sb.append(" ");
                     else sb.append("\n");
-<<<<<<< HEAD
                     i++;
                 }
-=======
-                }  
->>>>>>> 16d2f71280b9dd5d7eed5416ba48abc7b83ed61a
                 writer.write(sb.toString());
             }
 

@@ -18,11 +18,7 @@ public class SubsetLLDA extends LLDA {
 
     public SubsetLLDA(LLDACmdOption option) {
         super(option);
-<<<<<<< HEAD
         this.possibleLabels = option.testFile+".alpha";
-=======
-        this.possibleLabels = "alpha"+option.testFile;
->>>>>>> 16d2f71280b9dd5d7eed5416ba48abc7b83ed61a
     }
 
     @Override

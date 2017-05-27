@@ -10,19 +10,7 @@ import gr.auth.csd.mlkd.mlclassification.labeledlda.models.ModelTfIdf;
 import gr.auth.csd.mlkd.utils.LLDACmdOption;
 import gr.auth.csd.mlkd.utils.Utils;
 
-<<<<<<< HEAD
 import java.util.ArrayList;
-=======
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
->>>>>>> 16d2f71280b9dd5d7eed5416ba48abc7b83ed61a
 
 public class LLDA extends MLClassifier {
 
@@ -141,15 +129,9 @@ public class LLDA extends MLClassifier {
         }
         //normalize
         System.out.println("Serial inference finished. Averaging....");
-<<<<<<< HEAD
 //        for (int doc = 0; doc < thetaSum.size(); doc++) {
 //            thetaSum.set(doc, Utils.normalize(thetaSum.get(doc), 1.0));
 //        }
-=======
-        for (int doc = 0; doc < thetaSum.size(); doc++) {
-            thetaSum.set(doc, Utils.normalize(thetaSum.get(doc), 1.0));
-        }
->>>>>>> 16d2f71280b9dd5d7eed5416ba48abc7b83ed61a
         newModel.setTheta(thetaSum);
         newModel.save(15);
         predictions = thetaSum;
