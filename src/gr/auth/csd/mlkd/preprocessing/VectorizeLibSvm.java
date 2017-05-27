@@ -56,6 +56,7 @@ public class VectorizeLibSvm implements Vectorize {
 
             String line;
             int document = 0;
+            line = br.readLine();
             while ((line = br.readLine()) != null) {
                 document++;
                 String[] splits = line.split(",");

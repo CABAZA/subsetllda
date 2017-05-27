@@ -80,7 +80,6 @@ public abstract class MostRelevant {
     protected TObjectDoubleHashMap<String> processPerTestInstance(int i, double[] similarities) {
         if(i%100==0) System.out.println(new Date()+" "+i);
         TObjectDoubleHashMap<String> l = new TObjectDoubleHashMap<>();
-        Timer trainingTime = new Timer();
         for (int t = 0; t < trainVectors.size(); t++) {
             similarities[t] = similarity(testVectors.get(i), trainVectors.get(t));
         }

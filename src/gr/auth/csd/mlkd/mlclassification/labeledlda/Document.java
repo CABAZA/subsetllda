@@ -10,7 +10,7 @@ public class Document implements Serializable {
 
     private int[] labels = null;
 
-    Document(TIntDoubleHashMap doc, String id, int[] tags) {
+    Document(TIntDoubleHashMap doc, int[] tags) {
         this.tfIdfFeatures = doc;
         labels = tags;
         words = new TIntArrayList();

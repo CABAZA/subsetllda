@@ -24,16 +24,15 @@ public class DatasetTfIdf extends Dataset {
     }
 
     //constructor for LDA
-    public DatasetTfIdf(String svmFile, boolean unlabeled, boolean inference, 
-            int numFeatures, TIntDoubleHashMap[] fi, int K) {
-        super(unlabeled, inference);
+    public DatasetTfIdf(String svmFile, boolean inference,
+            int numFeatures, TIntDoubleHashMap[] fi) {
+        super(inference);
         this.svmFile = svmFile;
         if (!inference) {
             readLabels();
             V = numberOfFeatures(svmFile);
-            this.K = K;
-        } 
-        else {
+            //this.K = K;
+        } else {
             this.K = fi.length;
             this.V = numFeatures;
             labels = (TIntDoubleHashMap) Utils.readObject("lda.labels");
@@ -44,45 +43,50 @@ public class DatasetTfIdf extends Dataset {
         try (BufferedReader br = new BufferedReader(new FileReader(new File(svmFile)))) {
             String line;
             labels = new TIntDoubleHashMap();
+            line = br.readLine();
             while ((line = br.readLine()) != null) {
                 String[] splits = line.split(",");
                 HashSet<Integer> tags = new HashSet<>();
                 for (int i = 0; i < splits.length - 1; i++) {
-                    tags.add(Integer.parseInt(splits[i])+1);
+                    tags.add(Integer.parseInt(splits[i]) + 1);
                 }
                 String[] splits2 = splits[splits.length - 1].split(" ");
-                try{
-                    tags.add(Integer.parseInt(splits2[0])+1);
-                }
-                catch(NumberFormatException ex) {
+                try {
+                    tags.add(Integer.parseInt(splits2[0]) + 1);
+                } catch (NumberFormatException ex) {
                     System.out.println(line);
                 }
-                for(Integer tag:tags) labels.adjustOrPutValue(tag, 1, 1);
+                for (Integer tag : tags) {
+                    labels.adjustOrPutValue(tag, 1, 1);
+                }
             }
         } catch (FileNotFoundException ex) {
             Logger.getLogger(DatasetTfIdf.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
             Logger.getLogger(DatasetTfIdf.class.getName()).log(Level.SEVERE, null, ex);
         }
-        //K = labels.size();
+        K = labels.size();
         Utils.writeObject(labels, "lda.labels");
     }
 
     @Override
-    public void create() {
+    public void create(boolean ignoreFirstLine) {
         docs = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(new File(svmFile)))) {
             String line;
             int id = 0;
+            if(ignoreFirstLine) line = br.readLine();
             while ((line = br.readLine()) != null) {
                 TIntDoubleHashMap doc = new TIntDoubleHashMap();
                 String[] splits = line.split(",");
                 TIntHashSet tags = new TIntHashSet();
                 for (int i = 0; i < splits.length - 1; i++) {
-                    tags.add(Integer.parseInt(splits[i])+1);
+                    tags.add(Integer.parseInt(splits[i]) + 1);
                 }
                 String[] splits2 = splits[splits.length - 1].split(" ");
-                if(!splits2[0].isEmpty()) tags.add(Integer.parseInt(splits2[0])+1);
+                if (!splits2[0].isEmpty()) {
+                    tags.add(Integer.parseInt(splits2[0]) + 1);
+                }
                 //if(id==0) System.out.println(tags);
                 for (int i = 1; i < splits2.length; i++) {
                     String[] featNValue = splits2[i].split(":");
@@ -90,18 +94,14 @@ public class DatasetTfIdf extends Dataset {
                     double value = Double.parseDouble(featNValue[1]);
                     doc.put(feature, value);
                 }
-                if (!unlabeled) {
-                    int[] ls = new int[tags.size()];
-                    TIntIterator it = tags.iterator();
-                    int i = 0;
-                    while (it.hasNext()) {
-                        ls[i] = it.next();
-                        i++;
-                    }
-                    setDoc(new Document(doc, svmFile + id, ls), docs.size());
-                } else {
-                    setDoc(new Document(doc, svmFile + id, null), docs.size());
+                int[] ls = new int[tags.size()];
+                TIntIterator it = tags.iterator();
+                int i = 0;
+                while (it.hasNext()) {
+                    ls[i] = it.next();
+                    i++;
                 }
+                setDoc(new Document(doc, ls));
                 id++;
             }
         } catch (FileNotFoundException ex) {
@@ -126,6 +126,7 @@ public class DatasetTfIdf extends Dataset {
         int maxFeature = -1;
         try (BufferedReader br = new BufferedReader(new FileReader(new File(svmFile)))) {
             String line;
+            line = br.readLine();
             while ((line = br.readLine()) != null) {
 
                 String[] splits = line.split(",");
@@ -143,6 +144,6 @@ public class DatasetTfIdf extends Dataset {
         } catch (IOException ex) {
             Logger.getLogger(DatasetTfIdf.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return maxFeature+1;
+        return maxFeature + 1;
     }
 }

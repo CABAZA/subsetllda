@@ -17,19 +17,17 @@ public abstract class Dataset implements Serializable {
     static final long serialVersionUID = 5716568340666075332L;
     protected int V = 0; // number of words
     protected int K;
-    public final boolean unlabeled;
     public final boolean inference;
     protected ArrayList<Document> docs; // a list of documents				 		// number of documents
 
 
-    public Dataset(boolean unlabeled, boolean inference) {
-        this.unlabeled = unlabeled;
+    public Dataset(boolean inference) {
         this.inference = inference;
     }
 
 
 
-    public abstract void create();
+    public abstract void create(boolean ignoreFirstLine);
 
     public int getV() {
         return V;
@@ -44,12 +42,8 @@ public abstract class Dataset implements Serializable {
         return docs;
     }
 
-    public void setDoc(Document doc, int idx) {
-        if (0 <= idx && idx < docs.size()) {
-            docs.set(idx, doc);
-        } else {
-            docs.add(idx, doc);
-        }
+    public void setDoc(Document doc) {
+            docs.add(doc);
     }
 
     public abstract String getLabel(int id);
