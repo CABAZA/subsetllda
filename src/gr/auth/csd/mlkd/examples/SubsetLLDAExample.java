@@ -19,6 +19,8 @@ package gr.auth.csd.mlkd.examples;
 import gr.auth.csd.mlkd.mlclassification.labeledlda.SubsetLLDA;
 import gr.auth.csd.mlkd.utils.Timer;
 import gr.auth.csd.mlkd.utils.LLDACmdOption;
+import java.io.File;
+import java.io.IOException;
 
 /**
  *
@@ -26,17 +28,19 @@ import gr.auth.csd.mlkd.utils.LLDACmdOption;
  */
 public class SubsetLLDAExample {
 
-    public static void main(String args[]) {
+    public static void main(String args[]) throws IOException, InterruptedException {
         Timer timer = new Timer();
         LLDACmdOption option2 = new LLDACmdOption(args);
-        
+
 //        option2.trainingFile = "eurlex_train.txt";
 //        option2.testFile = "eurlex_test.txt";
         option2.K = 3993;
         //option2.parallel=true;
         SubsetLLDA mlc = new SubsetLLDA(option2);
-//        mlc.train();
-        mlc.predict();   
+        mlc.train();
+        mlc.predict();
 //        mlc.predictProbs2(null);
+        Process process = new ProcessBuilder("./eval.sh", "bibtex", "predictions").redirectError(new File("err.txt")).redirectOutput(new File("out.txt")).start();
+        process.waitFor();
     }
 }

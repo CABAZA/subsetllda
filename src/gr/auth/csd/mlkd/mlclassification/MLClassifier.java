@@ -17,6 +17,7 @@
 package gr.auth.csd.mlkd.mlclassification;
 
 import gnu.trove.iterator.TIntDoubleIterator;
+import gnu.trove.iterator.TIntIterator;
 import gnu.trove.map.hash.TIntDoubleHashMap;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -55,14 +56,24 @@ public abstract class MLClassifier {
     public abstract void predictInternal();
 
     public void savePredictions() {
+        int nrLabels = 0;
+        for (TIntDoubleHashMap p1 : predictions) {
+            TIntIterator it = p1.keySet().iterator();
+            while(it.hasNext()) {
+                int next = it.next();
+                if(next>nrLabels) nrLabels = next;
+            }
+        }
+        
         try (PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(predictionsFilename)))) {
+            writer.write(this.getPredictions().size()+" "+nrLabels+"\n");
             for (TIntDoubleHashMap p1 : predictions) {
                 StringBuilder sb = new StringBuilder();
                 TIntDoubleIterator it = p1.iterator();
                 int i=0;
                 while(it.hasNext()) {
                     it.advance();
-                    sb.append(it.key()).append(":").append(it.value());
+                    sb.append(it.key()-1).append(":").append(it.value());
                     if(i<p1.size()-1) sb.append(" ");
                     else sb.append("\n");
                     i++;
