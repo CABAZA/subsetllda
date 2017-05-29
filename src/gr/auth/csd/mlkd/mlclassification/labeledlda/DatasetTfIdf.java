@@ -44,6 +44,7 @@ public class DatasetTfIdf extends Dataset {
             String line;
             labels = new TIntDoubleHashMap();
             line = br.readLine();
+	    K=-1;
             while ((line = br.readLine()) != null) {
                 String[] splits = line.split(",");
                 HashSet<Integer> tags = new HashSet<>();
@@ -57,6 +58,7 @@ public class DatasetTfIdf extends Dataset {
                     System.out.println(line);
                 }
                 for (Integer tag : tags) {
+		    if(tag>K) K=tag;
                     labels.adjustOrPutValue(tag, 1, 1);
                 }
             }
@@ -65,7 +67,6 @@ public class DatasetTfIdf extends Dataset {
         } catch (IOException ex) {
             Logger.getLogger(DatasetTfIdf.class.getName()).log(Level.SEVERE, null, ex);
         }
-        K = labels.size();
         Utils.writeObject(labels, "lda.labels");
     }
 

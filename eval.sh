@@ -4,10 +4,11 @@ dir="FastXML_PfastreXML"
 dataset=$1
 data_dir="data/$dataset"
 
-mkdir $dir/Results/ ;
-
+trn_ft_file="${data_dir}/trn_X_Xf.txt"
 trn_lbl_file="${data_dir}/trn_X_Y.txt"
+tst_ft_file="${data_dir}/tst_X_Xf.txt"
 tst_lbl_file="${data_dir}/tst_X_Y.txt"
+inv_prop_file="${data_dir}/inv_prop.txt"
 
 perl $dir/Tools/convert_format.pl $data_dir/train $trn_ft_file $trn_lbl_file
 perl $dir/Tools/convert_format.pl $data_dir/test $tst_ft_file $tst_lbl_file

@@ -11,10 +11,18 @@ function P = helper(score_mat,true_mat,K)
 
 	for k=1:K
 		mat = rank_mat;
-		mat(rank_mat>k) = 0;
+
+		[i,j,v] = find(mat);
+		[m,n] = size(mat);
+		v(v>k) = 0;
+		mat = sparse(i,j,v,m,n);
+
+%		mat(rank_mat>k) = 0;
 		mat = spones(mat);
 		mat = mat.*true_mat;
 		num = sum(mat,1);
+
+		disp(num);	
 
 		P(k) = mean(num/k);
 	end

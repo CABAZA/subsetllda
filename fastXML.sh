@@ -18,8 +18,8 @@ tst_lbl_file="${data_dir}/tst_X_Y.txt"
 inv_prop_file="${data_dir}/inv_prop.txt"
 score_file="${results_dir}/score_mat.txt"
 
-perl $dir/Tools/convert_format.pl $data_dir/train.txt $trn_ft_file $trn_lbl_file
-perl $dir/Tools/convert_format.pl $data_dir/test.txt $tst_ft_file $tst_lbl_file
+perl $dir/Tools/convert_format.pl $data_dir/train $trn_ft_file $trn_lbl_file
+perl $dir/Tools/convert_format.pl $data_dir/test $tst_ft_file $tst_lbl_file
 
 # training
 # Reads training features (in $trn_ft_file), training labels (in $trn_lbl_file), and writes FastXML model to $model_dir
