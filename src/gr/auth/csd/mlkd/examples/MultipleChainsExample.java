@@ -22,6 +22,8 @@ import gr.auth.csd.mlkd.mlclassification.labeledlda.LLDA;
 import gr.auth.csd.mlkd.utils.LLDACmdOption;
 import gr.auth.csd.mlkd.utils.Timer;
 import gr.auth.csd.mlkd.utils.Utils;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -30,12 +32,13 @@ import java.util.ArrayList;
  */
 public class MultipleChainsExample {
 
-    public static void main(String args[]) {
+    public static void main(String args[]) throws IOException, InterruptedException {
         Timer timer = new Timer();
         MLClassifier mlc = null;
         ArrayList<TIntDoubleHashMap> predictions = null;
         LLDACmdOption option2 = new LLDACmdOption(args);
         int chains = 2;
+        option2.niters = 55;
 
         for (int i = 0; i < chains; i++) {
             mlc = new LLDA(option2);
@@ -53,13 +56,10 @@ public class MultipleChainsExample {
                 }
             }
         }
-
-        //normalize
-        for (int d = 0; d < predictions.size(); d++) {
-            predictions.set(d, Utils.normalize(predictions.get(d), 1.0));
-
-        }
         mlc.setPredictions(predictions);
         mlc.savePredictions();
+                Process process = new ProcessBuilder("./eval.sh", "bibtex", "predictions")
+                .redirectError(new File("err.txt")).redirectOutput(new File("out.txt")).start();
+        process.waitFor();
     }
 }

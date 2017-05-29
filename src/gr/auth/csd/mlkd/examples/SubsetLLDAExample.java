@@ -35,12 +35,15 @@ public class SubsetLLDAExample {
 //        option2.trainingFile = "eurlex_train.txt";
 //        option2.testFile = "eurlex_test.txt";
 //        option2.K = 3993;
-        //option2.parallel=true;
+//        option2.parallel=true;
+        option2.niters = 55;
+        option2.chains = 1;
         SubsetLLDA mlc = new SubsetLLDA(option2);
         mlc.train();
         mlc.predict();
 //        mlc.predictProbs2(null);
-        Process process = new ProcessBuilder("../eval.sh", "Eurlex", "predictions").redirectError(new File("err.txt")).redirectOutput(new File("out.txt")).start();
+        Process process = new ProcessBuilder("./eval.sh", "bibtex", "predictions")
+                .redirectError(new File("err.txt")).redirectOutput(new File("out.txt")).start();
         process.waitFor();
     }
 }
