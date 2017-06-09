@@ -2,12 +2,12 @@ package gr.auth.csd.mlkd.mlclassification.labeledlda;
 
 import gnu.trove.iterator.TIntDoubleIterator;
 import gnu.trove.map.hash.TIntDoubleHashMap;
+import gr.auth.csd.mlkd.LLDACmdOption;
 import gr.auth.csd.mlkd.mlclassification.MLClassifier;
 import gr.auth.csd.mlkd.mlclassification.labeledlda.models.EstimationCGSpModel;
 import gr.auth.csd.mlkd.mlclassification.labeledlda.models.InferenceCGSpModel;
 import gr.auth.csd.mlkd.mlclassification.labeledlda.models.Model;
 import gr.auth.csd.mlkd.mlclassification.labeledlda.models.ModelTfIdf;
-import gr.auth.csd.mlkd.utils.LLDACmdOption;
 import gr.auth.csd.mlkd.utils.Utils;
 
 import java.util.ArrayList;

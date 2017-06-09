@@ -1,11 +1,11 @@
 package gr.auth.csd.mlkd.mlclassification.labeledlda;
 
 import gnu.trove.map.hash.TIntDoubleHashMap;
+import gr.auth.csd.mlkd.LLDACmdOption;
 import gr.auth.csd.mlkd.mlclassification.labeledlda.models.Model;
 import gr.auth.csd.mlkd.mlclassification.labeledlda.subspace.MostRelevantJaccard;
 import gr.auth.csd.mlkd.mlclassification.labeledlda.subspace.MostRelevantTfIdf;
 import gr.auth.csd.mlkd.mlclassification.labeledlda.subspace.SubsetModel;
-import gr.auth.csd.mlkd.utils.LLDACmdOption;
 import gr.auth.csd.mlkd.utils.Utils;
 
 import java.io.File;

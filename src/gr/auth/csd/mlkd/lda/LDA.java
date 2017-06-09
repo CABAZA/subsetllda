@@ -1,15 +1,14 @@
 package gr.auth.csd.mlkd.lda;
 
-import gr.auth.csd.mlkd.atypon.LDACmdOption;
+
+import gr.auth.csd.mlkd.LDACmdOption;
 import gr.auth.csd.mlkd.atypon.lda.DatasetTfIdf;
 import gr.auth.csd.mlkd.lda.models.InferenceModel;
 import gr.auth.csd.mlkd.lda.models.Model;
-import gr.auth.csd.mlkd.mlclassification.labeledlda.Dataset;
 
 public class LDA {
 
-    static Dataset data;
-
+    static DatasetTfIdf data;
     final String method;
     final String testFile;
     final double a, b;

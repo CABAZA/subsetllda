@@ -1,7 +1,7 @@
 package gr.auth.csd.mlkd.lda;
 
-import gr.auth.csd.mlkd.atypon.LDACmdOption;
-import gr.auth.csd.mlkd.lda.models.CVB0Model;
+
+import gr.auth.csd.mlkd.LDACmdOption;
 import gr.auth.csd.mlkd.lda.models.Model;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -21,13 +21,9 @@ public class LDASerial extends LDA {
     public double[][][] estimation2() {
         Model trnModel;
         phi2= new double[chains/2][][];
-        data.create(corpus);
+        data.create(true);
         for (int i = 0; i < chains/2; i++) {
-            if ("cvb0".equals(method)) {
-                trnModel = new CVB0Model(data, a, false, b, perp, niters, nburnin, modelName, samplingLag);
-            } else {
-                trnModel = new Model(data, a, false, b, perp, niters, nburnin, modelName, samplingLag);
-            }
+            trnModel = new Model(data, a, false, b, perp, niters, nburnin, modelName, samplingLag);
             phi2[i] = trnModel.estimate(true);
         }
         return phi2;
