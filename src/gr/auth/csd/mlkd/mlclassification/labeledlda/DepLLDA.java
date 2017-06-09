@@ -1,12 +1,10 @@
 package gr.auth.csd.mlkd.mlclassification.labeledlda;
 
-import gnu.trove.set.hash.TIntHashSet;
 import gr.auth.csd.mlkd.LDACmdOption;
 import gr.auth.csd.mlkd.LLDACmdOption;
-import gr.auth.csd.mlkd.atypon.lda.models.Model;
-import gr.auth.csd.mlkd.atypon.utils.Utils;
 import gr.auth.csd.mlkd.lda.LDASerial;
 import gr.auth.csd.mlkd.mlclassification.labeledlda.models.DependencyModel;
+import gr.auth.csd.mlkd.mlclassification.labeledlda.models.Model;
 
 public class DepLLDA extends LLDA {
 

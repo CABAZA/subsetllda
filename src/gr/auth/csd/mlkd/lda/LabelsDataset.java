@@ -2,14 +2,15 @@ package gr.auth.csd.mlkd.lda;
 
 import gnu.trove.list.array.TIntArrayList;
 import gr.auth.csd.mlkd.lda.models.Model;
+import gr.auth.csd.mlkd.mlclassification.labeledlda.Dataset;
 
 
 import java.io.Serializable;
 import java.util.ArrayList;
 
-public class LabelsDataset extends DatasetBoW implements Serializable {
+public class LabelsDataset extends Dataset implements Serializable {
 
-    public LabelsDataset(Dictionary dic, boolean inf, int K, String trainedPhi, 
+    public LabelsDataset(boolean inf, int K, String trainedPhi, 
             String labs) {
         super(dic, inf, inf, K, trainedPhi);
         labels = Labels.readLabels(labs);
@@ -24,9 +25,8 @@ public class LabelsDataset extends DatasetBoW implements Serializable {
     //Creates the dataset by reading data, dictionary, labels, etc   
 
     @Override
-    public void create(Corpus corpus) {
+    public void create(boolean ignoreFirstLine) {
         docs = new ArrayList<>();
-        corpus.reset();
         while ((doc = corpus.nextDocument()) != null) {
             TIntArrayList wordIds = new TIntArrayList();
             for (String l : doc.getLabels()) {

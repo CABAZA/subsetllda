@@ -17,8 +17,7 @@
 package gr.auth.csd.mlkd.lda.models;
 
 import gnu.trove.list.array.TIntArrayList;
-import gr.auth.csd.mlkd.lda.DatasetBoW;
-import gr.auth.csd.mlkd.atypon.utils.Utils;
+import gr.auth.csd.mlkd.mlclassification.labeledlda.DatasetTfIdf;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -43,7 +42,7 @@ public class CGS_pModel extends Model {
         return phi_p;
     }
 
-    public CGS_pModel(DatasetBoW data, double a, boolean inf, double b, boolean perp, int niters, int nburnin, String modelName, int sl) {
+    public CGS_pModel(DatasetTfIdf data, double a, boolean inf, double b, boolean perp, int niters, int nburnin, String modelName, int sl) {
         super(data, a, inf, b, perp, niters, nburnin, modelName, sl);
         phi_p = new double[K][V];
         theta_p = new double[M][K];
