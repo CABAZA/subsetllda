@@ -14,6 +14,11 @@ public class LLDACmdOption extends LDACmdOption implements Serializable {
     public boolean parallel = false;
     @Option(name = "-possibleLabels", usage = "possibleLabels")
     public String possibleLabels="alpha";
+    @Option(name = "-trFolds", usage = "training folds file")
+    public String trainFoldsFile;
+    @Option(name = "-tstFolds", usage = "test folds file")
+    public String testFoldsFile;
+    public double gamma = 0.01;
 
     public LLDACmdOption(String[] args) {
         super();

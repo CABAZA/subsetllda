@@ -16,6 +16,8 @@
  */
 package gr.auth.csd.mlkd.examples;
 
+import gr.auth.csd.mlkd.mlclassification.labeledlda.DepLLDA;
+import gr.auth.csd.mlkd.mlclassification.labeledlda.LLDA;
 import gr.auth.csd.mlkd.mlclassification.labeledlda.SubsetLLDA;
 import gr.auth.csd.mlkd.utils.Timer;
 import gr.auth.csd.mlkd.utils.LLDACmdOption;
@@ -36,14 +38,18 @@ public class SubsetLLDAExample {
 //        option2.testFile = "eurlex_test.txt";
 //        option2.K = 3993;
 //        option2.parallel=true;
-        option2.niters = 55;
+        option2.niters = 205;
         option2.chains = 1;
-        SubsetLLDA mlc = new SubsetLLDA(option2);
+        //SubsetLLDA mlc = new SubsetLLDA(option2);
+        LLDA mlc = new LLDA(option2);
+        //DepLLDA mlc = new DepLLDA(option2);
         mlc.train();
         mlc.predict();
 //        mlc.predictProbs2(null);
         Process process = new ProcessBuilder("./eval.sh", "bibtex", "predictions")
-                .redirectError(new File("err.txt")).redirectOutput(new File("out.txt")).start();
+                //.redirectError(new File("err.txt")).redirectOutput(new File("out.txt"))
+                .inheritIO()
+                .start();
         process.waitFor();
     }
 }

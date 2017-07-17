@@ -1,10 +1,10 @@
 package gr.auth.csd.mlkd.lda.models;
 
 
-import gr.auth.csd.mlkd.atypon.lda.DatasetTfIdf;
+import gr.auth.csd.mlkd.mlclassification.labeledlda.DatasetTfIdf;
 import gr.auth.csd.mlkd.lda.CallableInferencer;
-import gr.auth.csd.mlkd.atypon.utils.Pair;
-import gr.auth.csd.mlkd.atypon.utils.Utils;
+import gr.auth.csd.mlkd.utils.Pair;
+import gr.auth.csd.mlkd.utils.Utils;
 import java.io.BufferedWriter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -105,7 +105,7 @@ public class Model {
                 int k = z[d][w];
                 nd[d][k]++;
                 if (!inference) {
-                    nw[k][word]++;
+                    nw[k][word-1]++;
                     nwsum[k]++;
                 } else if (perplexity && ppxCounter >= documentLength / 2) {
                     break;
@@ -122,13 +122,13 @@ public class Model {
             //System.out.println(d + " " + word);
 
             int topic = z[d][w];
-            nw[topic][word]--;
+            nw[topic][word-1]--;
             nd[d][topic]--;
             nwsum[topic]--;
 
             double probs[] = new double[K];
             for (int k = 0; k < K; k++) {
-                double prob = (nw[k][word] + beta) * (nd[d][k] + alpha[k]) / (nwsum[k] + betaSum);
+                double prob = (nw[k][word-1] + beta) * (nd[d][k] + alpha[k]) / (nwsum[k] + betaSum);
                 probs[k] = (k == 0) ? prob : probs[k - 1] + prob;
             }
 
@@ -143,7 +143,7 @@ public class Model {
             }
 
             z[d][w] = topic;
-            nw[topic][word]++;
+            nw[topic][word-1]++;
             nd[d][topic]++;
             nwsum[topic]++;
         }
@@ -184,8 +184,8 @@ public class Model {
                 int word = data.getDocs().get(d).getWords().get(w);
                 double l = 0;
                 for (int k = 0; k < data.getK(); k++) {
-                    if (phi[k][word] != 0 && theta[d][k] != 0) {
-                        l += phi[k][word] * theta[d][k];
+                    if (phi[k][word-1] != 0 && theta[d][k] != 0) {
+                        l += phi[k][word-1] * theta[d][k];
                     }
 
                 }
@@ -246,7 +246,7 @@ public class Model {
     protected void bipartitionsWrite(String bipartitionsFile, int twords, double[][] theta) {
         try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(bipartitionsFile), "UTF-8"))) {
             for (int m = 0; m < M; m++) {
-                writer.write(data.getDocs().get(m).getPmid() + ":\n");
+                writer.write(m + ":\n");
                 ArrayList<Pair> wordsProbsList = new ArrayList<>();
                 for (int k = 0; k < K; k++) {
                     Pair pair = new Pair(k, theta[m][k], false);

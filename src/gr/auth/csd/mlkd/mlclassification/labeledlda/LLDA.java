@@ -2,12 +2,12 @@ package gr.auth.csd.mlkd.mlclassification.labeledlda;
 
 import gnu.trove.iterator.TIntDoubleIterator;
 import gnu.trove.map.hash.TIntDoubleHashMap;
-import gr.auth.csd.mlkd.LLDACmdOption;
 import gr.auth.csd.mlkd.mlclassification.MLClassifier;
 import gr.auth.csd.mlkd.mlclassification.labeledlda.models.EstimationCGSpModel;
 import gr.auth.csd.mlkd.mlclassification.labeledlda.models.InferenceCGSpModel;
 import gr.auth.csd.mlkd.mlclassification.labeledlda.models.Model;
 import gr.auth.csd.mlkd.mlclassification.labeledlda.models.ModelTfIdf;
+import gr.auth.csd.mlkd.utils.LLDACmdOption;
 import gr.auth.csd.mlkd.utils.Utils;
 
 import java.util.ArrayList;
@@ -102,31 +102,31 @@ public class LLDA extends MLClassifier {
     @Override
     public void predictInternal() {
         TIntDoubleHashMap[] fi = Model.readPhi(trainedModelName + ".phi");
-        this.numFeatures = Utils.max(fi)+1;
+        this.numFeatures = Utils.max(fi);
         data = new DatasetTfIdf(testFile, true, numFeatures, fi);
         data.create(true);
         M = data.getDocs().size();
-        ArrayList<TIntDoubleHashMap> thetaSum = new ArrayList<>();
-        for (int m = 0; m < M; m++) {
-            thetaSum.add(new TIntDoubleHashMap());
-        }
+//        ArrayList<TIntDoubleHashMap> thetaSum = new ArrayList<>();
+//        for (int m = 0; m < M; m++) {
+//            thetaSum.add(new TIntDoubleHashMap());
+//        }
         Model newModel = null;
         System.out.println("Serial Inference");
-        for (int i = 0; i < chains; i++) {
+        //for (int i = 0; i < chains; i++) {
             newModel = new InferenceCGSpModel(data, trainedModelName, threads, iters, burnin);
             newModel.inference();
-            for (int m = 0; m < M; m++) {
+/*            for (int m = 0; m < M; m++) {
                 //sum up probabilities from the different markov chains
                 for (int k = 0; k < newModel.K; k++) {
                     double th = newModel.getTheta().get(m).get(k);
                     thetaSum.get(m).adjustOrPutValue(k, th,th);
                 }
             }
-            if (i < chains - 1) {
+*/            /*if (i < chains - 1) {
                 newModel = null;
                 System.gc();
             }
-        }
+        //}
         //normalize
         System.out.println("Serial inference finished. Averaging....");
 //        for (int doc = 0; doc < thetaSum.size(); doc++) {
@@ -134,6 +134,6 @@ public class LLDA extends MLClassifier {
 //        }
         newModel.setTheta(thetaSum);
         newModel.save(15);
-        predictions = thetaSum;
+        */predictions = newModel.getTheta();//thetaSum;
     }
 }

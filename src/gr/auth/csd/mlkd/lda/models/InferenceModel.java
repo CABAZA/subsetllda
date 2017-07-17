@@ -17,11 +17,10 @@ package gr.auth.csd.mlkd.lda.models;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 import gnu.trove.list.array.TIntArrayList;
-import gr.auth.csd.mlkd.lda.DatasetBoW;
-import gr.auth.csd.mlkd.atypon.utils.Utils;
+import gr.auth.csd.mlkd.mlclassification.labeledlda.DatasetTfIdf;
+import gr.auth.csd.mlkd.utils.Utils;
 import java.io.FileInputStream;
 import java.io.ObjectInputStream;
-import java.util.Arrays;
 import java.util.Date;
 
 /**
@@ -32,7 +31,7 @@ public class InferenceModel extends Model {
 
     double[][] theta_p;
 
-    public InferenceModel(DatasetBoW data, double a, boolean perp, int niters,
+    public InferenceModel(DatasetTfIdf data, double a, boolean perp, int niters,
             int nburnin, String modelName, int sl) {
         super(data, a, true, 0.01, perp, niters, nburnin, modelName, sl);
         phi = readPhi(modelName + ".phi");

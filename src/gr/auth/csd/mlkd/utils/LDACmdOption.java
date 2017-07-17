@@ -23,7 +23,7 @@ public class LDACmdOption extends CmdOption implements Serializable {
         public double beta = 0.01;
 
     @Option(name="-ntopics", usage="Specify the number of topics")
-        public int K = 200;
+        public int K = 100;
 
     @Option(name="-niters", usage="Specify the number of iterations")
         public int niters = 150;

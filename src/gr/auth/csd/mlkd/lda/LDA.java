@@ -1,10 +1,11 @@
 package gr.auth.csd.mlkd.lda;
 
 
-import gr.auth.csd.mlkd.LDACmdOption;
-import gr.auth.csd.mlkd.atypon.lda.DatasetTfIdf;
+
 import gr.auth.csd.mlkd.lda.models.InferenceModel;
 import gr.auth.csd.mlkd.lda.models.Model;
+import gr.auth.csd.mlkd.mlclassification.labeledlda.DatasetTfIdf;
+import gr.auth.csd.mlkd.utils.LLDACmdOption;
 
 public class LDA {
 
@@ -19,10 +20,10 @@ public class LDA {
     protected final int samplingLag;
     final String trainedPhi;
 
-    public LDA(LDACmdOption option) {
+    public LDA(LLDACmdOption option) {
         this.method = option.method;
         trainedPhi = option.modelName + ".phi";
-        data = new DatasetTfIdf(false, option.inf, option.K, trainedPhi);
+        data = new DatasetTfIdf(option.trainingFile, false, 0, null);
         this.chains = option.chains;
         this.modelName = option.modelName;
         this.niters = option.niters;

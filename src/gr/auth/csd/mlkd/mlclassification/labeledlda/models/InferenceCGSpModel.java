@@ -5,6 +5,7 @@ import gnu.trove.map.hash.TIntDoubleHashMap;
 import gr.auth.csd.mlkd.mlclassification.labeledlda.Dataset;
 import gr.auth.csd.mlkd.utils.Utils;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 
 
@@ -13,7 +14,7 @@ import java.util.ArrayList;
  * @author Yannis Papanikolaou
  */
 public class InferenceCGSpModel extends PriorModel {
-
+   
     public InferenceCGSpModel() {
         super();
     }
@@ -41,7 +42,7 @@ public class InferenceCGSpModel extends PriorModel {
 
                 //sum probabilities over the document
                 for (int k = 0; k < K; k++) {
-                    theta.get(d).adjustOrPutValue(k, p[k], p[k]);
+                    theta.get(d).adjustOrPutValue(k+1, p[k], p[k]);
                 }
             }
         }

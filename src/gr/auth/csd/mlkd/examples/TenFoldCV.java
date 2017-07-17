@@ -16,16 +16,17 @@
  */
 package gr.auth.csd.mlkd.examples;
 
-import gr.auth.csd.mlkd.LLDACmdOption;
+import gr.auth.csd.mlkd.mlclassification.labeledlda.LLDA;
+import gr.auth.csd.mlkd.utils.LLDACmdOption;
 import gr.auth.csd.mlkd.mlclassification.labeledlda.SubsetLLDA;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-import java.util.TreeMap;
 
 /**
  *
@@ -37,29 +38,76 @@ import java.util.TreeMap;
  */
 public class TenFoldCV {
 
-    public static void main(String args[]) throws IOException {
+    public static void main(String args[]) throws IOException, InterruptedException {
         LLDACmdOption option = new LLDACmdOption(args);
         List<String> instances = Files.readAllLines(new File(option.trainingFile).toPath());
-
-        BufferedReader br = new BufferedReader(new FileReader("C:\\readFile.txt"));
-        String[] fold = br.readLine().split(" ");
-        
-        //split docs
+        String[] firstLine = instances.get(0).split(" ");
+        int K = Integer.parseInt(firstLine[1]);
+        int nrFeatures = Integer.parseInt(firstLine[2]);
+        List<String> trainFolds = Files.readAllLines(new File(option.trainFoldsFile).toPath());
+        List<String> testFolds = Files.readAllLines(new File(option.testFoldsFile).toPath());
+        ArrayList<HashSet<Integer>> trfolds = new ArrayList<>();
+        ArrayList<HashSet<Integer>> tstfolds = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
+            trfolds.add(new HashSet<>());
+            tstfolds.add(new HashSet<>());
+        }
+        for (String fold : trainFolds) {
+            String[] f = fold.split(" ");
+            for (int i = 0; i < f.length; i++) {
+                trfolds.get(i).add(Integer.parseInt(f[i]));
+            }
+        }
+        for (String fold : testFolds) {
+            String[] f = fold.split(" ");
+            for (int i = 0; i < f.length; i++) {
+                tstfolds.get(i).add(Integer.parseInt(f[i]));
+            }
+        }
+        //System.out.println(tstfolds.get(0));
 
-            for (int j = 0; j < 5; j++) {
-                if (j != i) {
-                    docs2.putAll(docs.get(j));
-                }
+        //create data set and train-predict per fold
+        for (int i = 0; i < 1; i++) {
+            List<String> train = new ArrayList<>();
+            for (int j : trfolds.get(i)) {
+                train.add(instances.get(j));
+            }
+            List<String> test = new ArrayList<>();
+            for (int j : tstfolds.get(i)) {
+                test.add(instances.get(j));
             }
             option.trainingFile = "train";
-            option.validationFile = "test";
+            option.testFile = "test";
+
+            write(option.trainingFile, train, K, nrFeatures);
+            write(option.testFile, test, K, nrFeatures);
             option.niters = 55;
             option.chains = 1;
             SubsetLLDA mlc = new SubsetLLDA(option);
+            //LLDA mlc = new LLDA(option);
             mlc.train();
             mlc.predict();
+            Files.move(Paths.get(option.predictionsFile), Paths.get(option.predictionsFile + i));
+            Files.move(Paths.get(option.testFile), Paths.get(option.testFile + i));
+            Files.delete(Paths.get("test.alpha"));
+            Files.delete(Paths.get("test.wlabels"));
+            Process process = new ProcessBuilder("./evalSmall.sh", "test"+i, "predictions" + i)
+                    //.redirectError(new File("err.txt"))
+                    .inheritIO()
+                    //.redirectOutput(new File("out.txt"))
+                    .start();
+            process.waitFor();
         }
 
+    }
+
+    private static void write(String file, List<String> train, int K, int nrFeatures) {
+        try (PrintWriter writer = new PrintWriter(file, "UTF-8")) {
+            writer.println(train.size()+" "+K+" "+nrFeatures);
+            train.stream().forEach((line) -> {
+                writer.println(line);
+            });
+        } catch (IOException e) {
+        }
     }
 }

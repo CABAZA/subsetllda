@@ -1,8 +1,9 @@
 package gr.auth.csd.mlkd.lda;
 
-
-import gr.auth.csd.mlkd.LDACmdOption;
+import static gr.auth.csd.mlkd.lda.LDA.data;
 import gr.auth.csd.mlkd.lda.models.Model;
+import gr.auth.csd.mlkd.mlclassification.labeledlda.LabelsDataset;
+import gr.auth.csd.mlkd.utils.LLDACmdOption;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -14,18 +15,20 @@ import java.util.logging.Logger;
 public class LDASerial extends LDA {
         double[][][] phi2;
 
-    public LDASerial(LDACmdOption option) {
+    public LDASerial(LLDACmdOption option) {
         super(option);
+        data = new LabelsDataset(option.trainingFile, false, 0, null, option.K);
     }
 
     public double[][][] estimation2() {
         Model trnModel;
-        phi2= new double[chains/2][][];
+//        phi2= new double[chains/2][][];
+        phi2= new double[1][][];
         data.create(true);
-        for (int i = 0; i < chains/2; i++) {
+//        for (int i = 0; i < chains/2; i++) {
             trnModel = new Model(data, a, false, b, perp, niters, nburnin, modelName, samplingLag);
-            phi2[i] = trnModel.estimate(true);
-        }
+            phi2[0] = trnModel.estimate(true);
+//        }
         return phi2;
     }
 
@@ -55,7 +58,7 @@ public class LDASerial extends LDA {
     }
     
     public static void main(String args[]) {
-        LDACmdOption option = new LDACmdOption(args);
+        LLDACmdOption option = new LLDACmdOption(args);
         LDASerial ldaserial = new LDASerial(option);
         double[][][] phi2 = ldaserial.estimation2();
         ldaserial.writePhi(option.modelName + ".phi2");

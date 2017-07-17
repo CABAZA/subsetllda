@@ -28,6 +28,9 @@ import gr.auth.csd.mlkd.utils.Utils;
  */
 public class EstimationCGSpModel extends ModelTfIdf {
 
+    public EstimationCGSpModel() {
+    }
+
 
     public EstimationCGSpModel(Dataset data, int thread, double beta, String trainedModelName, int threads, int iters, int burnin) {
         super(data, thread, beta, false, trainedModelName, threads, iters, burnin);

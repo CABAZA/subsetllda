@@ -158,7 +158,6 @@ public class Model implements Runnable {
     
     public void update(int m) {
         double[] p = new double[K];
-        //data.getDocs().get(m).getWords().shuffle(new Random());
         TIntIterator it = data.getDocs().get(m).getWords().iterator();
         while (it.hasNext()) {
             int w = it.next();
@@ -172,7 +171,6 @@ public class Model implements Runnable {
             for (int k = 0; k < K_m; k++) {
                 topic = (labels == null) ? k : labels[k] - 1;
                 double prob = probability(w, topic, m);
-                
                 p[k] = (k == 0) ? prob : p[k - 1] + prob;
             }
             
