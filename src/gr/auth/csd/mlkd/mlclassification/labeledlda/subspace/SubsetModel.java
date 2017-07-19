@@ -17,7 +17,7 @@ import java.util.Arrays;
 public class SubsetModel extends InferenceCGSpModel implements Serializable {
 
     static final long serialVersionUID = -7219137807901737L;
-    private final double[][] alphaPrior;
+    //private final double[][] alphaPrior;
     private final int[][] possibleLabels;
 
     public SubsetModel(Dataset data, String trainedModelName, int threads, int iters, int burnin, String ls) {
@@ -53,26 +53,21 @@ public class SubsetModel extends InferenceCGSpModel implements Serializable {
 
         ArrayList<TObjectDoubleHashMap<String>> a = (ArrayList<TObjectDoubleHashMap<String>>) Utils.readObject(ls);
         this.possibleLabels = new int[M][];
-        alphaPrior = new double[M][];
+        //alphaPrior = new double[M][];
         for (int d = 0; d < M; d++) {
             int[] keySet = data.getDocs().get(d).getLabels();
             int size = keySet.length;
             possibleLabels[d] = new int[size];
-            alphaPrior[d] = new double[size];
+            //alphaPrior[d] = new double[size];
             int k = 0;
             for (int index : keySet) {
                 possibleLabels[d][k] = index;
-                String label = data.getLabel(index);
-                double freq = a.get(d).get(label);
-                alphaPrior[d][k] = 50.0 * freq + 30.0 / K;
+//                String label = data.getLabel(index);
+//                double freq = a.get(d).get(label);          
+//                alphaPrior[d][k] = 50.0 * freq + 30.0 / K;
                 k++;
             }
         }
-    }
-
-    @Override
-    public void initAlpha() {
-
     }
 
     @Override
@@ -83,7 +78,7 @@ public class SubsetModel extends InferenceCGSpModel implements Serializable {
             while (it.hasNext()) {
                 int w = it.next();
                 int randomIndex = r.nextInt(possibleLabels[d].length);
-                int topic = possibleLabels[d][randomIndex] - 1;
+                int topic = possibleLabels[d][randomIndex];
                 setZInitially(d, w, topic);
             }
         }
@@ -100,8 +95,8 @@ public class SubsetModel extends InferenceCGSpModel implements Serializable {
             int K_m = labels.length;
             double[] p = new double[K_m];
             for (int k = 0; k < K_m; k++) {
-                topic = labels[k] - 1;
-                double prob = phi[topic].get(w) * (nd[m].get(topic) + alphaPrior[m][k]);
+                topic = labels[k];
+                double prob = phi[topic].get(w) * (nd[m].get(topic) + alpha[topic]);//alphaPrior[m][k]);
                 p[k] = (k == 0) ? prob : p[k - 1] + prob;
             }
 
@@ -115,7 +110,7 @@ public class SubsetModel extends InferenceCGSpModel implements Serializable {
             if (topic == K_m) {
                 topic = K_m - 1;
             }
-            topic = labels[topic] - 1;
+            topic = labels[topic];
             addZi(m, w, topic);
             z[m].put(w, topic);
         }
@@ -132,8 +127,9 @@ public class SubsetModel extends InferenceCGSpModel implements Serializable {
             while (it.hasNext()) {
                 int word = it.next();
                 for (int k = 0; k < K_m; k++) {
-                    int topic = labels[k] - 1;
-                    p[k] = (nd[d].get(topic) + alphaPrior[d][k]) * phi[topic].get(word);
+                    int topic = labels[k];
+                    //p[k] = (nd[d].get(topic) + alphaPrior[d][k]) * phi[topic].get(word);
+                    p[k] = (nd[d].get(topic) + alpha[topic]) * phi[topic].get(word);
                 }
                 p = Utils.normalize(p, 1);
 

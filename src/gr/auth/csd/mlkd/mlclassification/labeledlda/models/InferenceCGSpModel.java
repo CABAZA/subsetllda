@@ -42,7 +42,7 @@ public class InferenceCGSpModel extends PriorModel {
 
                 //sum probabilities over the document
                 for (int k = 0; k < K; k++) {
-                    theta.get(d).adjustOrPutValue(k+1, p[k], p[k]);
+                    theta.get(d).adjustOrPutValue(k, p[k], p[k]);
                 }
             }
         }

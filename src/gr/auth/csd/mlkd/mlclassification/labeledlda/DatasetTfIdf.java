@@ -44,24 +44,27 @@ public class DatasetTfIdf extends Dataset {
             String line;
             labels = new TIntDoubleHashMap();
             line = br.readLine();
-	    K=-1;
+            K = -1;
             while ((line = br.readLine()) != null) {
                 String[] splits = line.split(",");
                 HashSet<Integer> tags = new HashSet<>();
                 for (int i = 0; i < splits.length - 1; i++) {
-                    tags.add(Integer.parseInt(splits[i]) + 1);
+                    tags.add(Integer.parseInt(splits[i]));
                 }
                 String[] splits2 = splits[splits.length - 1].split(" ");
                 try {
-                    tags.add(Integer.parseInt(splits2[0]) + 1);
+                    tags.add(Integer.parseInt(splits2[0]));
                 } catch (NumberFormatException ex) {
                     System.out.println(line);
                 }
                 for (Integer tag : tags) {
-		    if(tag>K) K=tag;
+                    if (tag > K) {
+                        K = tag;
+                    }
                     labels.adjustOrPutValue(tag, 1, 1);
                 }
             }
+            K++;
         } catch (FileNotFoundException ex) {
             Logger.getLogger(DatasetTfIdf.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
@@ -76,17 +79,19 @@ public class DatasetTfIdf extends Dataset {
         try (BufferedReader br = new BufferedReader(new FileReader(new File(svmFile)))) {
             String line;
             int id = 0;
-            if(ignoreFirstLine) line = br.readLine();
+            if (ignoreFirstLine) {
+                line = br.readLine();
+            }
             while ((line = br.readLine()) != null) {
                 TIntDoubleHashMap doc = new TIntDoubleHashMap();
                 String[] splits = line.split(",");
                 TIntHashSet tags = new TIntHashSet();
                 for (int i = 0; i < splits.length - 1; i++) {
-                    tags.add(Integer.parseInt(splits[i]) + 1);
+                    tags.add(Integer.parseInt(splits[i]));
                 }
                 String[] splits2 = splits[splits.length - 1].split(" ");
                 if (!splits2[0].isEmpty()) {
-                    tags.add(Integer.parseInt(splits2[0]) + 1);
+                    tags.add(Integer.parseInt(splits2[0]));
                 }
                 //if(id==0) System.out.println(tags);
                 for (int i = 1; i < splits2.length; i++) {
@@ -102,8 +107,10 @@ public class DatasetTfIdf extends Dataset {
                     ls[i] = it.next();
                     i++;
                 }
-                setDoc(new Document(doc, ls));
-                id++;
+                if (ls.length != 0) {
+                    setDoc(new Document(doc, ls));
+                    id++;
+                }
             }
         } catch (FileNotFoundException ex) {
             Logger.getLogger(DatasetTfIdf.class.getName()).log(Level.SEVERE, null, ex);

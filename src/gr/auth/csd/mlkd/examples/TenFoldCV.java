@@ -67,7 +67,7 @@ public class TenFoldCV {
         //System.out.println(tstfolds.get(0));
 
         //create data set and train-predict per fold
-        for (int i = 0; i < 1; i++) {
+        for (int i = 0; i < 10; i++) {
             List<String> train = new ArrayList<>();
             for (int j : trfolds.get(i)) {
                 train.add(instances.get(j));
@@ -81,11 +81,11 @@ public class TenFoldCV {
 
             write(option.trainingFile, train, K, nrFeatures);
             write(option.testFile, test, K, nrFeatures);
-            option.niters = 55;
+            option.niters = 205;
             option.chains = 1;
             SubsetLLDA mlc = new SubsetLLDA(option);
             //LLDA mlc = new LLDA(option);
-            mlc.train();
+            //mlc.train();
             mlc.predict();
             Files.move(Paths.get(option.predictionsFile), Paths.get(option.predictionsFile + i));
             Files.move(Paths.get(option.testFile), Paths.get(option.testFile + i));

@@ -22,13 +22,13 @@ public class LDASerial extends LDA {
 
     public double[][][] estimation2() {
         Model trnModel;
-//        phi2= new double[chains/2][][];
-        phi2= new double[1][][];
+        phi2= new double[chains/2][][];
+//        phi2= new double[1][][];
         data.create(true);
-//        for (int i = 0; i < chains/2; i++) {
+        for (int i = 0; i < chains/2; i++) {
             trnModel = new Model(data, a, false, b, perp, niters, nburnin, modelName, samplingLag);
             phi2[0] = trnModel.estimate(true);
-//        }
+        }
         return phi2;
     }
 

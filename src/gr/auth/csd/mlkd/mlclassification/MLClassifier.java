@@ -66,16 +66,16 @@ public abstract class MLClassifier {
         }
         
         try (PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(predictionsFilename)))) {
-            writer.write(this.getPredictions().size()+" "+nrLabels+"\n");
+            writer.write(this.getPredictions().size()+" "+(nrLabels+1)+"\n");
             for (TIntDoubleHashMap p1 : predictions) {
                 StringBuilder sb = new StringBuilder();
                 TIntDoubleIterator it = p1.iterator();
                 int i=0;
                 while(it.hasNext()) {
                     it.advance();
-                    sb.append(it.key()-1).append(":").append(it.value());
-                    if(i<p1.size()-1) sb.append(" ");
-                    else sb.append("\n");
+                    if(it.value()!=0) sb.append(it.key()).append(":").append(it.value());
+                    if(i<p1.size()-1&&it.value()!=0) sb.append(" ");
+                    if(i==p1.size()-1) sb.append("\n");
                     i++;
                 }
                 writer.write(sb.toString());

@@ -7,6 +7,7 @@ import gr.auth.csd.mlkd.mlclassification.labeledlda.models.DependencyModel;
 import gr.auth.csd.mlkd.mlclassification.labeledlda.models.InferenceCGSpModel;
 import gr.auth.csd.mlkd.mlclassification.labeledlda.models.Model;
 import gr.auth.csd.mlkd.utils.Utils;
+import java.util.ArrayList;
 
 public class DepLLDA extends LLDA {
 
@@ -34,41 +35,50 @@ public class DepLLDA extends LLDA {
     @Override
     public void predictInternal() {
         TIntDoubleHashMap[] fi = Model.readPhi(trainedModelName + ".phi");
-        this.numFeatures = Utils.max(fi);
+        this.numFeatures = Utils.max(fi)+1;
         data = new DatasetTfIdf(testFile, true, numFeatures, fi);
         data.create(true);
         M = data.getDocs().size();
-        //double[][] thetaSum = new double[M][data.getK()];
+        ArrayList<TIntDoubleHashMap> thetaSum = new ArrayList<>();
+        for (int m = 0; m < M; m++) {
+            thetaSum.add(new TIntDoubleHashMap());
+        }
         Model newModel = null;
         System.out.println("Serial Inference");
 
         double[][][] phiArray = LDASerial.readPhi2(trainedPhi2);
-        //int numOfLDAModels = phiArray.length;
+        int numOfLDAModels = phiArray.length;
 
-//        for (int i = 0; i < chains / numOfLDAModels; i++) {
-//            for (int j = 0; j < numOfLDAModels; j++) {
-                newModel = new DependencyModel(data, iters, burnin, trainedModelName, phiArray[0], g,threads);
+        for (int i = 0; i < chains / numOfLDAModels; i++) {
+            for (int j = 0; j < numOfLDAModels; j++) {
+                newModel = new DependencyModel(data, iters, burnin, trainedModelName, phiArray[0], g, threads);
                 newModel.inference();
-                predictions = newModel.getTheta();
-//                for (int m = 0; m < newModel.M; m++) {
-//                    //sum up probabilities from the different markov chains
-//                    for (int k = 0; k < newModel.K; k++) {
-//                        thetaSum[m][k] += newModel.getTheta()[m][k];
-//                    }
-//                }
-//                if (i < chains - 1) {
-//                    newModel = null;
-//                    System.gc();
-//                }
-//            }
-//        }
+                if (i + j == 0) {
+                    thetaSum = newModel.getTheta();
+                } else {
+                    //predictions = newModel.getTheta();
+
+                    for (int m = 0; m < newModel.M; m++) {
+                        //sum up probabilities from the different markov chains
+                        for (int k = 0; k < newModel.K; k++) {
+                            double val = newModel.getTheta().get(m).get(k);
+                            thetaSum.get(m).adjustOrPutValue(k, val, val);
+                        }
+                    }
+                }
+                if (i < chains - 1) {
+                    newModel = null;
+                    System.gc();
+                }
+            }
+        }
         //normalize
-//        System.out.println("Serial inference finished. Averaging....");
-//        for (int doc = 0; doc < thetaSum.length; doc++) {
-//            thetaSum[doc] = Utils.normalize(thetaSum[doc], 1);
-//        }
-//        newModel.setTheta(thetaSum);
-//        newModel.save(15);
-//        predictions = thetaSum;
+        System.out.println("Serial inference finished. Averaging....");
+        for (int doc = 0; doc < thetaSum.size(); doc++) {
+            thetaSum.set(doc, Utils.normalize(thetaSum.get(doc), 1));
+        }
+        newModel.setTheta(thetaSum);
+        newModel.save(15);
+        predictions = thetaSum;
     }
 }

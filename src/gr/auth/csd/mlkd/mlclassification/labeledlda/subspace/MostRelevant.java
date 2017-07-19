@@ -92,8 +92,8 @@ public abstract class MostRelevant {
             Set<String> set = trainingFileLabels.get(maxRelevance);
             //if(i==0) System.out.println(maxRelevance+" "+sim+" "+set.toString());
             for (String label : set) {
-                l.adjustOrPutValue(label, 1, 1);
-                //l.adjustOrPutValue(label, sim, sim);
+                //l.adjustOrPutValue(label, 1, 1);
+                l.adjustOrPutValue(label, sim, sim);
             }
         }
         return l;

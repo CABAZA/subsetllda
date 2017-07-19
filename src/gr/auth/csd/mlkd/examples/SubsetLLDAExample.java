@@ -16,6 +16,7 @@
  */
 package gr.auth.csd.mlkd.examples;
 
+import gr.auth.csd.mlkd.evaluation.MicroAndMacroF;
 import gr.auth.csd.mlkd.mlclassification.labeledlda.DepLLDA;
 import gr.auth.csd.mlkd.mlclassification.labeledlda.LLDA;
 import gr.auth.csd.mlkd.mlclassification.labeledlda.SubsetLLDA;
@@ -40,16 +41,18 @@ public class SubsetLLDAExample {
 //        option2.parallel=true;
         option2.niters = 205;
         option2.chains = 1;
-        //SubsetLLDA mlc = new SubsetLLDA(option2);
-        LLDA mlc = new LLDA(option2);
+        SubsetLLDA mlc = new SubsetLLDA(option2);
+        //LLDA mlc = new LLDA(option2);
         //DepLLDA mlc = new DepLLDA(option2);
-        //mlc.train();
+        mlc.train();
         mlc.predict();
         Process process = new ProcessBuilder("./eval.sh", "EUR-Lex", "predictions")
-        //Process process = new ProcessBuilder("./eval.sh", "bibtex", "predictions")
+//        Process process = new ProcessBuilder("./eval.sh", "bibtex", "predictions")
                 //.redirectError(new File("err.txt")).redirectOutput(new File("out.txt"))
                 .inheritIO()
                 .start();
         process.waitFor();
+        //MicroAndMacroF ev = new MicroAndMacroF(option2.testFile, "predictions", 159, 2);
+        MicroAndMacroF ev = new MicroAndMacroF(option2.testFile, "predictions", 3993, 5);
     }
 }

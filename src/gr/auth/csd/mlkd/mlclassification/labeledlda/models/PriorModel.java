@@ -37,7 +37,7 @@ public class PriorModel extends ModelTfIdf {
             it.advance();
             int k = it.key();
             double frequency = it.value();
-            alpha[k-1] = 50.0 * frequency / sumOfFrequencies + 30.0 / K;
+            alpha[k] = 50.0 * frequency / sumOfFrequencies + 30.0 / K;
         }
     }
 

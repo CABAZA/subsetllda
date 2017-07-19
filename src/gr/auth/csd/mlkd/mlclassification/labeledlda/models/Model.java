@@ -133,7 +133,7 @@ public class Model implements Runnable {
                 int topic;
                 if (!inference) {
                     int randomIndex = rand.nextInt(data.getDocs().get(m).getLabels().length);
-                    topic = data.getDocs().get(m).getLabels()[randomIndex] - 1;
+                    topic = data.getDocs().get(m).getLabels()[randomIndex];
                     
                 } else {
                     topic = rand.nextInt(K);
@@ -147,8 +147,8 @@ public class Model implements Runnable {
                     it = data.getDocs().get(m).getWords().iterator();
                     while (it.hasNext()) {
                         int w = it.next();
-                        if (!phi[label - 1].contains(w)) {
-                            phi[label - 1].put(w, 0.0);
+                        if (!phi[label].contains(w)) {
+                            phi[label].put(w, 0.0);
                         }
                     }
                 }
@@ -169,7 +169,7 @@ public class Model implements Runnable {
             }
             int K_m = (labels == null) ? K : labels.length;
             for (int k = 0; k < K_m; k++) {
-                topic = (labels == null) ? k : labels[k] - 1;
+                topic = (labels == null) ? k : labels[k];
                 double prob = probability(w, topic, m);
                 p[k] = (k == 0) ? prob : p[k - 1] + prob;
             }
@@ -185,7 +185,7 @@ public class Model implements Runnable {
                 topic = K_m - 1;
             }
             if (labels != null) {
-                topic = labels[topic] - 1;
+                topic = labels[topic];
             }
             addZi(m, w, topic);
             z[m].put(w, topic);
