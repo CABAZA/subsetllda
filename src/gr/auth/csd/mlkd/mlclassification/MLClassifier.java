@@ -70,12 +70,18 @@ public abstract class MLClassifier {
             for (TIntDoubleHashMap p1 : predictions) {
                 StringBuilder sb = new StringBuilder();
                 TIntDoubleIterator it = p1.iterator();
+                TIntDoubleHashMap nonzero = new TIntDoubleHashMap();
+                while(it.hasNext()) {
+                    it.advance();
+                    if(it.value()!=0) nonzero.put(it.key(), it.value());
+                }
+                it = nonzero.iterator();
                 int i=0;
                 while(it.hasNext()) {
                     it.advance();
-                    if(it.value()!=0) sb.append(it.key()).append(":").append(it.value());
-                    if(i<p1.size()-1&&it.value()!=0) sb.append(" ");
-                    if(i==p1.size()-1) sb.append("\n");
+                    sb.append(it.key()).append(":").append(it.value());
+                    if(i<nonzero.size()-1) sb.append(" ");
+                    else sb.append("\n");
                     i++;
                 }
                 writer.write(sb.toString());
