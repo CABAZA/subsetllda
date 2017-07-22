@@ -54,7 +54,7 @@ public abstract class MostRelevant {
             RelevantCallable<Integer> c = new RelevantCallable<>(i, this);
             tasks.add(c);
         }
-        ExecutorService exec = Executors.newFixedThreadPool(40);
+        ExecutorService exec = Executors.newFixedThreadPool(2);
         try {
             List<Future<TObjectDoubleHashMap<String>>> furs = exec.invokeAll(tasks);
             exec.shutdown();

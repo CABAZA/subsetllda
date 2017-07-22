@@ -29,15 +29,15 @@ public class ModelTfIdf extends Model {
     public void removeZi(int m, int w, int topic) {
         double tfIdfValue = data.getDocs().get(m).getTfIdfFeatures().get(w);
         nd[m].adjustValue(topic, -tfIdfValue);
-        if (nd[m].get(topic) == 0) {
-            nd[m].remove(topic);
-        }
+//        if (nd[m].get(topic) <= 0) {
+//            nd[m].remove(topic);
+//        }
         if (!inference) {
             nwsum[topic] -= tfIdfValue;
             nw[topic].adjustValue(w, -tfIdfValue);
-            if (nw[topic].get(w) == 0) {
-                nw[topic].remove(w);
-            }
+//            if (nw[topic].get(w) == 0) {
+//                nw[topic].remove(w);
+//            }
         }
     }
 

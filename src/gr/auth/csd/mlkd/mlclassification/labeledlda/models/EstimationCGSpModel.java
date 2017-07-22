@@ -54,13 +54,10 @@ public class EstimationCGSpModel extends ModelTfIdf {
             for (int w = 0; w < words.size(); w++) {
                 double[] p = new double[labels.length];
                 int word = data.getDocs().get(d).getWords().get(w);
-                int topic = z[d].get(w);
-                nd[d].adjustValue(topic, -1);
                 for (int k = 0; k < labels.length; k++) {
                     int label = labels[k];
                     p[k] = this.probability(word, label, d);
                 }
-                nd[d].adjustValue(topic, 1);
                 p = Utils.normalize(p, 1);
                 for (int k = 0; k < labels.length; k++) {
                     int label = labels[k];

@@ -83,8 +83,10 @@ public abstract class Evaluator {
                 TreeSet<Integer> truth = new TreeSet<>();
                 String[] split = line.split(" ");
                 String[] tags = split[0].split(",");
-                for (String label : tags) {
-                    truth.add(Integer.parseInt(label));
+                if (tags.length != 0&&!tags[0].isEmpty()) {
+                    for (String label : tags) {
+                        truth.add(Integer.parseInt(label));
+                    }
                 }
                 tru.put(doc, truth);
                 doc++;

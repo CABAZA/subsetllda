@@ -1,5 +1,6 @@
 package gr.auth.csd.mlkd.mlclassification.labeledlda.models;
 
+import gnu.trove.iterator.TIntIterator;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.TIntDoubleHashMap;
 import gr.auth.csd.mlkd.mlclassification.labeledlda.Dataset;
@@ -27,19 +28,14 @@ public class InferenceCGSpModel extends PriorModel {
     protected ArrayList<TIntDoubleHashMap> computeTheta(int totalSamples) {
         System.out.print("Updating parameters...");
         for (int d = 0; d < M; d++) {
-            double tempTheta[] = new double[K];
             double[] p = new double[K];
-            TIntArrayList words = data.getDocs().get(d).getWords();
-            for (int w = 0; w < words.size(); w++) {
-                int word = data.getDocs().get(d).getWords().get(w);
-                int topic = z[d].get(w);
-                nd[d].adjustValue(topic, -1);
+            TIntIterator it = data.getDocs().get(d).getWords().iterator();
+            while (it.hasNext()) {
+                int word = it.next();
                 for (int k = 0; k < K; k++) {
                     p[k] = (nd[d].get(k) + alpha[k]) * phi[k].get(word);
                 }
-                nd[d].adjustValue(topic, 1);
-                //p = Utils.normalize(p, 1);
-
+                p = Utils.normalize(p, 1);                
                 //sum probabilities over the document
                 for (int k = 0; k < K; k++) {
                     theta.get(d).adjustOrPutValue(k, p[k], p[k]);

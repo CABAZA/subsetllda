@@ -16,6 +16,8 @@
  */
 package gr.auth.csd.mlkd.examples;
 
+import gr.auth.csd.mlkd.evaluation.MicroAndMacroF;
+import gr.auth.csd.mlkd.mlclassification.labeledlda.DepLLDA;
 import gr.auth.csd.mlkd.mlclassification.labeledlda.LLDA;
 import gr.auth.csd.mlkd.utils.LLDACmdOption;
 import gr.auth.csd.mlkd.mlclassification.labeledlda.SubsetLLDA;
@@ -67,7 +69,7 @@ public class TenFoldCV {
         //System.out.println(tstfolds.get(0));
 
         //create data set and train-predict per fold
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 2; i++) {
             List<String> train = new ArrayList<>();
             for (int j : trfolds.get(i)) {
                 train.add(instances.get(j));
@@ -85,18 +87,23 @@ public class TenFoldCV {
             option.chains = 1;
             SubsetLLDA mlc = new SubsetLLDA(option);
             //LLDA mlc = new LLDA(option);
-            //mlc.train();
+            //DepLLDA mlc = new DepLLDA(option);
+            mlc.train();
             mlc.predict();
             Files.move(Paths.get(option.predictionsFile), Paths.get(option.predictionsFile + i));
             Files.move(Paths.get(option.testFile), Paths.get(option.testFile + i));
-            Files.delete(Paths.get("test.alpha"));
-            Files.delete(Paths.get("test.wlabels"));
+            //Files.delete(Paths.get("test.alpha"));
+            //Files.delete(Paths.get("test.wlabels"));
             Process process = new ProcessBuilder("./evalSmall.sh", "test"+i, "predictions" + i)
                     //.redirectError(new File("err.txt"))
                     .inheritIO()
                     //.redirectOutput(new File("out.txt"))
                     .start();
             process.waitFor();
+            //MicroAndMacroF ev = new MicroAndMacroF("test"+i, "predictions"+i, 101, 4);
+            //MicroAndMacroF ev = new MicroAndMacroF("test"+i, "predictions"+i, 159, 2);
+            MicroAndMacroF ev = new MicroAndMacroF("test"+i, "predictions"+i, 983, 19);
+        //MicroAndMacroF ev = new MicroAndMacroF(option2.testFile, "predictions", 3993, 5);
         }
 
     }

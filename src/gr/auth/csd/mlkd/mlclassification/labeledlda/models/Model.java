@@ -345,12 +345,13 @@ public class Model implements Runnable {
         float p;
         if (!inference) {
             //return (float) ((nd[m].get(k) + 50.0 / data.getDocs().get(m).getLabels().length) * (nw[k].get(w) + beta) / (nwsum[k] + betaSum));
-            p = (float) ((nd[m].get(k) + alpha[k]) * (nw[k].get(w) + beta) / (nwsum[k] + nw[k].size() * beta));
+            p = (float) ((nd[m].get(k) + alpha[k]) * (nw[k].get(w) + beta) / (nwsum[k] +betaSum));
         } else {
             p = (float) ((nd[m].get(k) + alpha[k]) * phi[k].get(w));
         }
         if (new Double(p).isNaN()) {
-            return 0;
+            System.out.println("NaN probability!");
+            return (float) (alpha[k]*beta/(betaSum));
         }
         return p;
     }
@@ -366,15 +367,15 @@ public class Model implements Runnable {
     
     public void removeZi(int m, int w, int topic) {
         nd[m].adjustValue(topic, -1);
-        if (nd[m].get(topic) == 0) {
-            nd[m].remove(topic);
-        }
+//        if (nd[m].get(topic) == 0) {
+//            nd[m].remove(topic);
+//        }
         if (!inference) {
             nwsum[topic] -= 1;
             nw[topic].adjustValue(w, -1);
-            if (nw[topic].get(w) == 0) {
-                nw[topic].remove(w);
-            }
+//            if (nw[topic].get(w) == 0) {
+//                nw[topic].remove(w);
+//            }
         }
     }
     

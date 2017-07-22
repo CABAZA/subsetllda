@@ -35,14 +35,14 @@ public class SubsetLLDA extends LLDA {
         TIntDoubleHashMap[] fi = Model.readPhi(trainedModelName + ".phi");
         this.numFeatures = Utils.max(fi)+1;
         if (!new File(testFile + ".wlabels").exists()) {
-            mr = new MostRelevantTfIdf(10, this.testFile, this.trainingFile);
+            mr = new MostRelevantTfIdf(5, this.testFile, this.trainingFile);
             //mr = new MostRelevantJaccard(10, this.testFile, this.trainingFile);
             mr.mostRelevant();
         }
         data = new DatasetTfIdf(testFile + ".wlabels", true, numFeatures, fi);
         data.create(false);
         M = data.getDocs().size();
-        System.out.println("Serial Inference");
+        System.out.println("Subset LLDA - Serial Inference");
                 ArrayList<TIntDoubleHashMap> thetaSum = new ArrayList<>();
         for (int m = 0; m < M; m++) {
             thetaSum.add(new TIntDoubleHashMap());

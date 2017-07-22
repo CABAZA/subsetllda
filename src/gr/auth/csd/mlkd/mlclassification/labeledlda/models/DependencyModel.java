@@ -132,16 +132,13 @@ public class DependencyModel extends /*Prior*/ InferenceCGSpModel {
         for (int d = 0; d < M; d++) {
             double tempTheta[] = new double[K];
             double[] p = new double[K];
-            TIntArrayList words = data.getDocs().get(d).getWords();
-            for (int w = 0; w < words.size(); w++) {
-                int word = data.getDocs().get(d).getWords().get(w);
-                int topic = z[d].get(w);
-                nd[d].adjustValue(topic, -1);
+            TIntIterator it = data.getDocs().get(d).getWords().iterator();
+            while (it.hasNext()) {
+                int word = it.next();
                 for (int k = 0; k < K; k++) {
                     p[k] = (nd[d].get(k) + depAlpha[d][k]) * phi[k].get(word);
                 }
-                nd[d].adjustValue(topic, 1);
-                //p = Utils.normalize(p, 1);
+                p = Utils.normalize(p, 1);
 
                 //sum probabilities over the document
                 for (int k = 0; k < K; k++) {
