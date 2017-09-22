@@ -7,9 +7,9 @@ package gr.auth.csd.mlkd.utils;
  */
 public class Ztest {
     public static void main (String args[]) {
-        double a = 0.17118;//Double.parseDouble(args[0]);
-        double b = 0.18102;//Double.parseDouble(args[1]);
-        double n = 17570;//Double.parseDouble(args[2]);
+        double a = 0.272;//Double.parseDouble(args[0]);
+        double b = 0.286;//Double.parseDouble(args[1]);
+        double n = 6617;//Double.parseDouble(args[2]);
         double d = Math.abs(a-b);
         double p = (a+b)/2;
         //double p = (a*n1+b*n2)/(n1+n2);
